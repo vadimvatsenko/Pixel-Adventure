@@ -10,14 +10,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed;
     
     [Header("Double Jump details")]
-    [SerializeField] private float doubleJumpForce; // 9 - сила двойного прижка
-    private bool _canDoubleJump; // 1
+    [SerializeField] private float doubleJumpForce; // сила двойного прижка
+    private bool _canDoubleJump; 
     
     [Header("Collision Info")]
-    private bool _isGrounded;
-    private bool _isAirborne; // 5 - в воздухе ли мы
     [SerializeField] private float groundCheckDistance;
+    [SerializeField] private float wallCheckDistance; // 2 - дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
+    private bool _isGrounded;
+    private bool _isAirborne; // в воздухе ли мы
+    private bool _isWallDetected; // 1 - коснулись ли мы стены
     
     private float _xInput;
     
@@ -37,26 +39,34 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        UpdateAirBornStatus(); // 7
-        
+        UpdateAirBornStatus();
+        HandleWallSlide(); // 5
         HandleCollisions();
         HandleMovement();
         HandleAnimations();
         HandleFlip(); // метод переворачивания персонажа
     }
 
-    private void UpdateAirBornStatus() // 6 - переключатель состояния персонажа в воздухе
+    private void HandleWallSlide() // 6 - метод скольжения
+    {
+        if (_isWallDetected && _rb.linearVelocity.y < 0)
+        {
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * 0.5f);
+        }
+    }
+
+    private void UpdateAirBornStatus() // переключатель состояния персонажа в воздухе
     {
         if (_isGrounded && _isAirborne) HandleLanding(); 
         if (!_isGrounded && !_isAirborne) BecomeAirborn();
     }
 
-    private void BecomeAirborn() // 8
+    private void BecomeAirborn() 
     {
         _isAirborne = true;
     }
 
-    private void HandleLanding() // 7
+    private void HandleLanding() 
     {
         _isAirborne = false;
         _canDoubleJump = true;
@@ -70,19 +80,21 @@ public class Player : MonoBehaviour
 
     private void HandleCollisions()
     {
-        _isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+        _isGrounded = Physics2D.Raycast
+            (transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+        _isWallDetected = Physics2D.Raycast
+            (transform.position, Vector2.right * _facingDir, wallCheckDistance, whatIsGround); // 3 - проверка на стену
     }
 
     private void HandleInput()
     {
         _xInput = Input.GetAxisRaw("Horizontal"); // GetAxisRaw - строго 1 или -1, тогда как GetAxis - плавает 
         
-        // if (Input.GetKeyDown(KeyCode.Space) && _isGrounded) Jump(); // 3 - убираем проверку на землю
-        if (Input.GetKeyDown(KeyCode.Space)) JumpButton(); // 4 
+        if (Input.GetKeyDown(KeyCode.Space)) JumpButton(); 
         
     }
 
-    private void JumpButton() // 2 - Метод отвечающий за прыжок 
+    private void JumpButton() // Метод отвечающий за прыжок 
     {
         if (_isGrounded)
         {
@@ -103,20 +115,20 @@ public class Player : MonoBehaviour
 
     private void Jump() => _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
 
-    private void DoubleJump() // 10 
+    private void DoubleJump() 
     {
         _canDoubleJump = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, doubleJumpForce);
     }
 
-    private void HandleFlip() // 4 - метод переворачивания
+    private void HandleFlip() // метод переворачивания
     {
         if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
         {
             Flip();
         }
     }
-    private void Flip() // 5
+    private void Flip() 
     {
         _facingDir *= -1;
         transform.Rotate(0f, 180f, 0f);
@@ -126,6 +138,9 @@ public class Player : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        Gizmos.DrawLine
+            (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        Gizmos.DrawLine
+            (transform.position, new Vector2(transform.position.x + (wallCheckDistance * _facingDir), transform.position.y)); // 4 - лучь на стену
     }
 }

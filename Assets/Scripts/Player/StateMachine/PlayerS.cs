@@ -85,10 +85,10 @@ public class PlayerS : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(this.transform.position, 
-            new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
-        Gizmos.DrawLine(this.transform.position, 
-            new Vector2(transform.position.x + wallCheckDistance * _facingDir, transform.position.y));
+        //Gizmos.color = Color.red;
+        //Gizmos.DrawLine(this.transform.position, 
+            //new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        //Gizmos.DrawLine(this.transform.position, 
+            //new Vector2(transform.position.x + wallCheckDistance * _facingDir, transform.position.y));
     }
 }
