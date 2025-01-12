@@ -150,7 +150,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bd64412773e224090f87523baae0e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpForce: 6
   moveSpeed: 4
+  groundCheckDistance: 0.95
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!70 &101814581
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -242,8 +247,8 @@ GameObject:
   - component: {fileID: 333869086}
   - component: {fileID: 333869085}
   - component: {fileID: 333869084}
-  m_Layer: 0
-  m_Name: Square
+  m_Layer: 3
+  m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
