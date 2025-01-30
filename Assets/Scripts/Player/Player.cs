@@ -10,11 +10,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private float moveSpeed;
 
-    [Header("Wall interaction")] // 1 - Взаимодействие со стеной
-    [SerializeField] private float wallJumpDuration = 0.6f; // 2 - задержка прыжка от стены
-    [SerializeField] private Vector2 wallJumpForce; // 3 - сила прыжка от стены
-    private bool _isWallJumping; // 4
+    [Header("Wall interaction")] // Взаимодействие со стеной
+    [SerializeField] private float wallJumpDuration = 0.6f; // задержка прыжка от стены
+    [SerializeField] private Vector2 wallJumpForce; // сила прыжка от стены
+    private bool _isWallJumping; 
     
+    [Header("Knockback")] // 1
+    [SerializeField] private float knockbackDuration = 1; // 2
+    [SerializeField] private Vector2 knockbackPower; // 3
+    private bool _isKnocked; // 4
+    private bool _canBeKnocked; // 5
     
     [Header("Double Jump details")]
     [SerializeField] private float doubleJumpForce; // сила двойного прижка
@@ -44,18 +49,34 @@ public class Player : MonoBehaviour
     private void Update()
     {
         HandleInput();
+        
+        if(Input.GetKeyDown(KeyCode.F)) // 15 временно для проверки урона
+        {
+            Knockback();
+        }
     }
 
     private void FixedUpdate()
     {
         UpdateAirBornStatus();
         
+        if(_isKnocked) return; // 12 - мы не хотим ничего делать, если нас ударили
         // обязательно такой порядок вызовов
         HandleWallSlide(); 
         HandleMovement();
         HandleFlip(); // метод переворачивания персонажа
         HandleCollisions();
         HandleAnimations();
+    }
+
+    public void Knockback() // 6
+    {
+        if(_isKnocked) return; // 14 - если ударили, то не вызывать снова метод
+        StartCoroutine(KnockbackRoutine()); // 10
+        // _isKnocked = true; // 7 // 11
+        _animator.SetTrigger("knockback"); // 8
+        
+        _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); // 13
     }
 
     private void HandleWallSlide() // метод скольжения
@@ -97,7 +118,7 @@ public class Player : MonoBehaviour
     private void HandleMovement()
     {
         if (_isWallDetected) return; // если прикоснулись к стене, то не двигаемся.
-        if(_isWallJumping) return; // 9 - мы не ходим, если нам нужно отпрыгнуть от стены 
+        if(_isWallJumping) return; // мы не ходим, если нам нужно отпрыгнуть от стены 
         
         _rb.linearVelocity = new Vector2(_xInput * moveSpeed, _rb.linearVelocity.y);
     }
@@ -126,7 +147,7 @@ public class Player : MonoBehaviour
             Jump();
         }
         
-        else if (_isWallDetected && !_isGrounded) // 8 - обязательно тут проверка 
+        else if (_isWallDetected && !_isGrounded) // обязательно тут проверка 
         {
             WallJump();
         }
@@ -148,33 +169,41 @@ public class Player : MonoBehaviour
 
     private void DoubleJump()
     {
-        _isWallJumping = false; // 14
+        _isWallJumping = false; 
         _canDoubleJump = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, doubleJumpForce);
     }
 
-    private void WallJump() // 5
+    private void WallJump() 
     {
-        
-        //_isWallJumping = true; // 6 // 11
-        
-        // 7 - wallJumpForce.x * -_facingDir - это сила прыжка по x умножена на противоположную сторону лица персонажа
+        // wallJumpForce.x * -_facingDir - это сила прыжка по x умножена на противоположную сторону лица персонажа
         // так как когда мы скользим по стене персонаж смотрит в другую сторону, но направление персонажа остается
         // смотреть на стену
 
-        _canDoubleJump = true; // 15
+        _canDoubleJump = true; 
         _rb.linearVelocity = new Vector2(wallJumpForce.x * -_facingDir, wallJumpForce.y);
 
-        Flip(); // 13 
-        StopAllCoroutines(); // 15 
-        StartCoroutine(WallJumpRoutine()); // 12
+        Flip();  
+        StopAllCoroutines(); 
+        StartCoroutine(WallJumpRoutine()); 
     }
 
-    private IEnumerator WallJumpRoutine() // 10
+    private IEnumerator WallJumpRoutine() 
     {
         _isWallJumping = true;
         yield return new WaitForSeconds(wallJumpDuration);
         _isWallJumping = false;
+    }
+
+    private IEnumerator KnockbackRoutine() // 9
+    {
+        _canBeKnocked = false;
+        _isKnocked = true;
+        
+        yield return new WaitForSeconds(knockbackDuration);
+        
+        _canBeKnocked = true;
+        _isKnocked = false;
     }
 
     private void HandleFlip() // метод переворачивания 
