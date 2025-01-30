@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,6 +9,12 @@ public class Player : MonoBehaviour
     [Header("Movement details")]
     [SerializeField] private float jumpForce;
     [SerializeField] private float moveSpeed;
+
+    [Header("Wall interaction")] // 1 - Взаимодействие со стеной
+    [SerializeField] private float wallJumpDuration = 0.6f; // 2 - задержка прыжка от стены
+    [SerializeField] private Vector2 wallJumpForce; // 3 - сила прыжка от стены
+    private bool _isWallJumping; // 4
+    
     
     [Header("Double Jump details")]
     [SerializeField] private float doubleJumpForce; // сила двойного прижка
@@ -15,15 +22,15 @@ public class Player : MonoBehaviour
     
     [Header("Collision Info")]
     [SerializeField] private float groundCheckDistance;
-    [SerializeField] private float wallCheckDistance; // 2 - дистанция до стены
+    [SerializeField] private float wallCheckDistance; // дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
     
     private bool _isGrounded;
     private bool _isAirborne; // в воздухе ли мы
-    private bool _isWallDetected; // 1 - коснулись ли мы стены
+    private bool _isWallDetected; // коснулись ли мы стены
     
     private float _xInput;
-    private float _yInput; // 15
+    private float _yInput; 
     
     private bool _isFacingRight = true; // смотрит ли персонаж на право
     private int _facingDir = 1; // если смотрит в право (1), на лево (-1)
@@ -33,7 +40,7 @@ public class Player : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponentInChildren<Animator>();
     }
-
+    
     private void Update()
     {
         HandleInput();
@@ -43,23 +50,23 @@ public class Player : MonoBehaviour
     {
         UpdateAirBornStatus();
         
-        // 10 - обязательно такой порядок вызовов
-        HandleWallSlide(); // 5
+        // обязательно такой порядок вызовов
+        HandleWallSlide(); 
         HandleMovement();
         HandleFlip(); // метод переворачивания персонажа
         HandleCollisions();
         HandleAnimations();
     }
 
-    private void HandleWallSlide() // 6 - метод скольжения
+    private void HandleWallSlide() // метод скольжения
     {
         
-        bool canWallSlide = _isWallDetected && _rb.linearVelocity.y < 0; // 11 - локальная переменная, можно ли скользить
-        float yModifer = _yInput < 0? 1f : 0.05f; // 17 - модификатор скорости скольжения, если нажата кнопка вниз, то скорость модификатора 1
+        bool canWallSlide = _isWallDetected && _rb.linearVelocity.y < 0; // локальная переменная, можно ли скользить
+        float yModifer = _yInput < 0? 1f : 0.05f; // модификатор скорости скольжения, если нажата кнопка вниз, то скорость модификатора 1
         
-        if (!canWallSlide) return; // 12 - прекратить выполненение метода
+        if (!canWallSlide) return; // прекратить выполненение метода
         
-        //if (_isWallDetected && _rb.linearVelocity.y < 0) // 13 - больше нам не нужно это условие
+        //if (_isWallDetected && _rb.linearVelocity.y < 0) // больше нам не нужно это условие
         //{
             // _rb.linearVelocity.y * 0.5f - потому что слад вниз должен быть медленным
             //_rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * 0.5f);
@@ -67,7 +74,7 @@ public class Player : MonoBehaviour
         
         // _rb.linearVelocity.y * 0.5f - потому что слад вниз должен быть медленным
         
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * yModifer); // 14
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * yModifer); 
     }
 
     private void UpdateAirBornStatus() // переключатель состояния персонажа в воздухе
@@ -89,7 +96,8 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (_isWallDetected) return; // 8 - если прикоснулись к стене, то не двигаемся.
+        if (_isWallDetected) return; // если прикоснулись к стене, то не двигаемся.
+        if(_isWallJumping) return; // 9 - мы не ходим, если нам нужно отпрыгнуть от стены 
         
         _rb.linearVelocity = new Vector2(_xInput * moveSpeed, _rb.linearVelocity.y);
     }
@@ -99,13 +107,13 @@ public class Player : MonoBehaviour
         _isGrounded = Physics2D.Raycast
             (transform.position, Vector2.down, groundCheckDistance, whatIsGround);
         _isWallDetected = Physics2D.Raycast
-            (transform.position, Vector2.right * _facingDir, wallCheckDistance, whatIsGround); // 3 - проверка на стену
+            (transform.position, Vector2.right * _facingDir, wallCheckDistance, whatIsGround); // проверка на стену
     }
 
     private void HandleInput()
     {
         _xInput = Input.GetAxisRaw("Horizontal"); // GetAxisRaw - строго 1 или -1, тогда как GetAxis - плавает 
-        _yInput = Input.GetAxisRaw("Vertical"); // 16 - получаем вертикальное нажатие
+        _yInput = Input.GetAxisRaw("Vertical"); // получаем вертикальное нажатие
         
         if (Input.GetKeyDown(KeyCode.Space)) JumpButton(); 
         
@@ -116,6 +124,11 @@ public class Player : MonoBehaviour
         if (_isGrounded)
         {
             Jump();
+        }
+        
+        else if (_isWallDetected && !_isGrounded) // 8 - обязательно тут проверка 
+        {
+            WallJump();
         }
         else if (_canDoubleJump)
         {
@@ -128,15 +141,40 @@ public class Player : MonoBehaviour
         _animator.SetFloat("xVelocity", _rb.linearVelocity.x); 
         _animator.SetFloat("yVelocity", _rb.linearVelocity.y); // анимация прыжка и падения
         _animator.SetBool("isGrounded", _isGrounded); // проверка земли, для выполнения анимации
-        _animator.SetBool("isWallDetected", _isWallDetected); // 7 - анимация скольжения
+        _animator.SetBool("isWallDetected", _isWallDetected); // анимация скольжения
     }
 
     private void Jump() => _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
 
-    private void DoubleJump() 
+    private void DoubleJump()
     {
+        _isWallJumping = false; // 14
         _canDoubleJump = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, doubleJumpForce);
+    }
+
+    private void WallJump() // 5
+    {
+        
+        //_isWallJumping = true; // 6 // 11
+        
+        // 7 - wallJumpForce.x * -_facingDir - это сила прыжка по x умножена на противоположную сторону лица персонажа
+        // так как когда мы скользим по стене персонаж смотрит в другую сторону, но направление персонажа остается
+        // смотреть на стену
+
+        _canDoubleJump = true; // 15
+        _rb.linearVelocity = new Vector2(wallJumpForce.x * -_facingDir, wallJumpForce.y);
+
+        Flip(); // 13 
+        StopAllCoroutines(); // 15 
+        StartCoroutine(WallJumpRoutine()); // 12
+    }
+
+    private IEnumerator WallJumpRoutine() // 10
+    {
+        _isWallJumping = true;
+        yield return new WaitForSeconds(wallJumpDuration);
+        _isWallJumping = false;
     }
 
     private void HandleFlip() // метод переворачивания 
@@ -160,8 +198,8 @@ public class Player : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine
-            (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+            (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance)); // лучь на пол
         Gizmos.DrawLine
-            (transform.position, new Vector2(transform.position.x + (wallCheckDistance * _facingDir), transform.position.y)); // 4 - лучь на стену
+            (transform.position, new Vector2(transform.position.x + (wallCheckDistance * _facingDir), transform.position.y)); // лучь на стену
     }
 }
