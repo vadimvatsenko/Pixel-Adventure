@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float _bufferJumpWindow = 0.25f; // Окно буфера (сколько секунд допустимо)
     private float _bufferJumpActivated = -1; // Фиксирует момент, когда нажата клавиша прыжка, хранит момент времени (в секундах), когда была нажата клавиша
     
-    // 4 - Coyote Jump - позволяющая игроку выполнить прыжок в течение небольшого времени после того, как он ушёл с края платформы
+    // Coyote Jump - позволяющая игроку выполнить прыжок в течение небольшого времени после того, как он ушёл с края платформы
     [Header("Coyote Jump")] 
     [SerializeField] private float _coyoteJumpWindow = 0.5f; // Окно буфера (сколько секунд допустимо)
     private float _coyoteJumpActivated = -1; // Фиксирует момент, когда нажата клавиша прыжка, хранит момент времени (в секундах), когда была нажата клавиша
@@ -30,7 +30,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float knockbackDuration = 1; 
     [SerializeField] private Vector2 knockbackPower; 
     private bool _isKnocked; 
-    // private bool _canBeKnocked; 1 - удалить
     
     [Header("Double Jump details")]
     [SerializeField] private float doubleJumpForce; // сила двойного прижка
@@ -41,7 +40,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float wallCheckDistance; // дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
     
-    private bool _isGrounded;
+    private bool _isGrounded; // на земле ли мы
     private bool _isAirborne; // в воздухе ли мы
     private bool _isWallDetected; // коснулись ли мы стены
     
@@ -50,7 +49,8 @@ public class Player : MonoBehaviour
     
     private bool _isFacingRight = true; // смотрит ли персонаж на право
     private int _facingDir = 1; // если смотрит в право (1), на лево (-1)
-    
+
+    #region MonoBehaviour Methods
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -72,6 +72,7 @@ public class Player : MonoBehaviour
         UpdateAirBornStatus();
         
         if(_isKnocked) return; // мы не хотим ничего делать, если нас ударили
+        
         // обязательно такой порядок вызовов
         HandleWallSlide(); 
         HandleMovement();
@@ -79,48 +80,9 @@ public class Player : MonoBehaviour
         HandleCollisions();
         HandleAnimations();
     }
-
-    public void Knockback() 
-    {
-        if(_isKnocked) return; // если ударили, то не вызывать снова метод
-        StartCoroutine(KnockbackRoutine()); 
-        _animator.SetTrigger("knockback"); 
-        
-        _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); 
-    }
-
-    private void HandleWallSlide() // метод скольжения
-    {
-        
-        bool canWallSlide = _isWallDetected && _rb.linearVelocity.y < 0; // локальная переменная, можно ли скользить
-        float yModifer = _yInput < 0? 1f : 0.05f; // модификатор скорости скольжения, если нажата кнопка вниз, то скорость модификатора 1
-        
-        if (!canWallSlide) return; // прекратить выполненение метода
-        
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * yModifer); 
-    }
-
-    private void UpdateAirBornStatus() // переключатель состояния персонажа в воздухе
-    {
-        if (_isGrounded && _isAirborne) HandleLanding(); 
-        if (!_isGrounded && !_isAirborne) BecomeAirborn();
-    }
-
-    private void BecomeAirborn() 
-    {
-        _isAirborne = true;
-        
-        if(_rb.linearVelocity.y < 0) ActivateCoyoteJump(); // 8
-    }
-        
-
-    private void HandleLanding() 
-    {
-        _isAirborne = false;
-        _canDoubleJump = true;
-        
-        AttemtBufferJump(); 
-    }
+    #endregion
+    
+     #region Movement and Input Logic
 
     private void HandleMovement()
     {
@@ -130,13 +92,7 @@ public class Player : MonoBehaviour
         _rb.linearVelocity = new Vector2(_xInput * moveSpeed, _rb.linearVelocity.y);
     }
 
-    private void HandleCollisions()
-    {
-        _isGrounded = Physics2D.Raycast
-            (transform.position, Vector2.down, groundCheckDistance, whatIsGround);
-        _isWallDetected = Physics2D.Raycast
-            (transform.position, Vector2.right * _facingDir, wallCheckDistance, whatIsGround); // проверка на стену
-    }
+    
 
     private void HandleInput()
     {
@@ -149,7 +105,32 @@ public class Player : MonoBehaviour
             RequestBufferJump(); 
         } 
     }
+    #endregion
+    
+    #region Knockback Logic
 
+    public void Knockback() 
+    {
+        if(_isKnocked) return; // если ударили, то не вызывать снова метод
+        StartCoroutine(KnockbackRoutine()); 
+        _animator.SetTrigger("knockback"); 
+        
+        _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); 
+    }
+    
+    private IEnumerator KnockbackRoutine() 
+    {
+        _isKnocked = true;
+        
+        yield return new WaitForSeconds(knockbackDuration);
+        
+        _isKnocked = false;
+    }
+
+    #endregion
+
+    #region Buffer & Coyote Jump Logic
+    
     // Запрос на буферизированный прыжок: Когда игрок нажимает пробел в воздухе, фиксируется момент нажатия
     private void RequestBufferJump() 
     {
@@ -163,18 +144,22 @@ public class Player : MonoBehaviour
     {
         if (Time.time < _bufferJumpActivated + _bufferJumpWindow)
         {
-            _bufferJumpActivated = Time.time - 1; // Сбрасываем буфер // 7 - было _bufferJumpActivated = 0
+            _bufferJumpActivated = Time.time - 1; // Сбрасываем буфер, было _bufferJumpActivated = 0
             Jump();
         }
     }
     
-    private void ActivateCoyoteJump() => _coyoteJumpActivated = Time.time; // 5
-    private void CancelCoyoteJump() => _coyoteJumpActivated = Time.time - 1; // 6
+    private void ActivateCoyoteJump() => _coyoteJumpActivated = Time.time; 
+    private void CancelCoyoteJump() => _coyoteJumpActivated = Time.time - 1; 
 
+    #endregion
+    
+    #region Jump Logic
+    
     private void JumpButton() // Метод отвечающий за прыжок 
     {
-        bool coyoteJumpAvalible = Time.time < _coyoteJumpActivated + _coyoteJumpWindow; // 9
-        if (_isGrounded || coyoteJumpAvalible) // 10 - || coyoteJumpAvalible
+        bool coyoteJumpAvalible = Time.time < _coyoteJumpActivated + _coyoteJumpWindow; 
+        if (_isGrounded || coyoteJumpAvalible) 
         {
             Jump();
         }
@@ -188,17 +173,9 @@ public class Player : MonoBehaviour
             DoubleJump(); 
         }
         
-        CancelCoyoteJump(); // 11
+        CancelCoyoteJump(); 
     }
-
-    private void HandleAnimations()
-    {
-        _animator.SetFloat("xVelocity", _rb.linearVelocity.x); 
-        _animator.SetFloat("yVelocity", _rb.linearVelocity.y); // анимация прыжка и падения
-        _animator.SetBool("isGrounded", _isGrounded); // проверка земли, для выполнения анимации
-        _animator.SetBool("isWallDetected", _isWallDetected); // анимация скольжения
-    }
-
+    
     private void Jump() => _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
 
     private void DoubleJump()
@@ -228,18 +205,11 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(wallJumpDuration);
         _isWallJumping = false;
     }
-
-    private IEnumerator KnockbackRoutine() 
-    {
-        //_canBeKnocked = false; // 2 - удалить
-        _isKnocked = true;
-        
-        yield return new WaitForSeconds(knockbackDuration);
-        
-        // _canBeKnocked = true; // 3 - удалить
-        _isKnocked = false;
-    }
-
+    
+    #endregion
+    
+    #region Flip Logic
+    
     private void HandleFlip() // метод переворачивания 
     {
         // тут нам нужно поменять условие, вместо if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
@@ -256,7 +226,57 @@ public class Player : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
         _isFacingRight = !_isFacingRight;
     }
+    
+    #endregion
+    
+    private void HandleWallSlide() // метод скольжения
+    {
+        
+        bool canWallSlide = _isWallDetected && _rb.linearVelocity.y < 0; // локальная переменная, можно ли скользить
+        float yModifer = _yInput < 0? 1f : 0.05f; // модификатор скорости скольжения, если нажата кнопка вниз, то скорость модификатора 1
+        
+        if (!canWallSlide) return; // прекратить выполненение метода
+        
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * yModifer); 
+    }
 
+    private void UpdateAirBornStatus() // переключатель состояния персонажа в воздухе
+    {
+        if (_isGrounded && _isAirborne) HandleLanding(); 
+        if (!_isGrounded && !_isAirborne) BecomeAirborn();
+    }
+
+    private void BecomeAirborn() 
+    {
+        _isAirborne = true;
+        
+        if(_rb.linearVelocity.y < 0) ActivateCoyoteJump(); 
+    }
+        
+
+    private void HandleLanding() 
+    {
+        _isAirborne = false;
+        _canDoubleJump = true;
+        
+        AttemtBufferJump(); 
+    }
+    
+    private void HandleCollisions()
+    {
+        _isGrounded = Physics2D.Raycast
+            (transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+        _isWallDetected = Physics2D.Raycast
+            (transform.position, Vector2.right * _facingDir, wallCheckDistance, whatIsGround); // проверка на стену
+    }
+    private void HandleAnimations()
+    {
+        _animator.SetFloat("xVelocity", _rb.linearVelocity.x); 
+        _animator.SetFloat("yVelocity", _rb.linearVelocity.y); // анимация прыжка и падения
+        _animator.SetBool("isGrounded", _isGrounded); // проверка земли, для выполнения анимации
+        _animator.SetBool("isWallDetected", _isWallDetected); // анимация скольжения
+    }
+    
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine
