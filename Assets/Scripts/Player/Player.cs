@@ -12,9 +12,14 @@ public class Player : MonoBehaviour
 
     // Buffer Jump - это механизм, который позволяет игроку выполнить прыжок,
     // даже если он нажал кнопку "прыжок" немного раньше, чем персонаж коснулся земли
-    [Header("Buffer Jump")] // 1
-    [SerializeField] private float _bufferJumpWindow = 0.25f; // 6 - Окно буфера (сколько секунд допустимо)
-    private float _bufferJumpActivated = -1; // 2 - Фиксирует момент, когда нажата клавиша прыжка, хранит момент времени (в секундах), когда была нажата клавиша
+    [Header("Buffer Jump")] 
+    [SerializeField] private float _bufferJumpWindow = 0.25f; // Окно буфера (сколько секунд допустимо)
+    private float _bufferJumpActivated = -1; // Фиксирует момент, когда нажата клавиша прыжка, хранит момент времени (в секундах), когда была нажата клавиша
+    
+    // 4 - Coyote Jump - позволяющая игроку выполнить прыжок в течение небольшого времени после того, как он ушёл с края платформы
+    [Header("Coyote Jump")] 
+    [SerializeField] private float _coyoteJumpWindow = 0.5f; // Окно буфера (сколько секунд допустимо)
+    private float _coyoteJumpActivated = -1; // Фиксирует момент, когда нажата клавиша прыжка, хранит момент времени (в секундах), когда была нажата клавиша
 
     [Header("Wall interaction")] // Взаимодействие со стеной
     [SerializeField] private float wallJumpDuration = 0.6f; // задержка прыжка от стены
@@ -25,7 +30,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float knockbackDuration = 1; 
     [SerializeField] private Vector2 knockbackPower; 
     private bool _isKnocked; 
-    private bool _canBeKnocked; 
+    // private bool _canBeKnocked; 1 - удалить
     
     [Header("Double Jump details")]
     [SerializeField] private float doubleJumpForce; // сила двойного прижка
@@ -92,14 +97,6 @@ public class Player : MonoBehaviour
         
         if (!canWallSlide) return; // прекратить выполненение метода
         
-        //if (_isWallDetected && _rb.linearVelocity.y < 0) // больше нам не нужно это условие
-        //{
-            // _rb.linearVelocity.y * 0.5f - потому что слад вниз должен быть медленным
-            //_rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * 0.5f);
-        //}
-        
-        // _rb.linearVelocity.y * 0.5f - потому что слад вниз должен быть медленным
-        
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * yModifer); 
     }
 
@@ -112,14 +109,17 @@ public class Player : MonoBehaviour
     private void BecomeAirborn() 
     {
         _isAirborne = true;
+        
+        if(_rb.linearVelocity.y < 0) ActivateCoyoteJump(); // 8
     }
+        
 
     private void HandleLanding() 
     {
         _isAirborne = false;
         _canDoubleJump = true;
         
-        AttemtBufferJump(); // 8
+        AttemtBufferJump(); 
     }
 
     private void HandleMovement()
@@ -146,31 +146,35 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             JumpButton();
-            RequestBufferJump(); // 5
+            RequestBufferJump(); 
         } 
     }
 
-    // 3 - Запрос на буферизированный прыжок: Когда игрок нажимает пробел в воздухе, фиксируется момент нажатия
+    // Запрос на буферизированный прыжок: Когда игрок нажимает пробел в воздухе, фиксируется момент нажатия
     private void RequestBufferJump() 
     {
-        if(_isAirborne) _bufferJumpActivated = Time.time; // 4 - Time.time фиксирует текущее время, когда игрок нажал кнопку прыжка.
+        if(_isAirborne) _bufferJumpActivated = Time.time; // Time.time фиксирует текущее время, когда игрок нажал кнопку прыжка.
     }
 
-    // 7 - Когда персонаж приземляется (HandleLanding() вызывает AttemtBufferJump()),
+    // Когда персонаж приземляется (HandleLanding() вызывает AttemtBufferJump()),
     // проверяется, прошло ли менее _bufferJumpWindow секунд с момента нажатия клавиши.
     // Если условие выполняется, игрок выполняет прыжок автоматически.
     private void AttemtBufferJump() 
     {
         if (Time.time < _bufferJumpActivated + _bufferJumpWindow)
         {
-            _bufferJumpActivated = 0; // Сбрасываем буфер
+            _bufferJumpActivated = Time.time - 1; // Сбрасываем буфер // 7 - было _bufferJumpActivated = 0
             Jump();
         }
     }
+    
+    private void ActivateCoyoteJump() => _coyoteJumpActivated = Time.time; // 5
+    private void CancelCoyoteJump() => _coyoteJumpActivated = Time.time - 1; // 6
 
     private void JumpButton() // Метод отвечающий за прыжок 
     {
-        if (_isGrounded)
+        bool coyoteJumpAvalible = Time.time < _coyoteJumpActivated + _coyoteJumpWindow; // 9
+        if (_isGrounded || coyoteJumpAvalible) // 10 - || coyoteJumpAvalible
         {
             Jump();
         }
@@ -183,6 +187,8 @@ public class Player : MonoBehaviour
         {
             DoubleJump(); 
         }
+        
+        CancelCoyoteJump(); // 11
     }
 
     private void HandleAnimations()
@@ -225,12 +231,12 @@ public class Player : MonoBehaviour
 
     private IEnumerator KnockbackRoutine() 
     {
-        _canBeKnocked = false;
+        //_canBeKnocked = false; // 2 - удалить
         _isKnocked = true;
         
         yield return new WaitForSeconds(knockbackDuration);
         
-        _canBeKnocked = true;
+        // _canBeKnocked = true; // 3 - удалить
         _isKnocked = false;
     }
 
@@ -249,7 +255,6 @@ public class Player : MonoBehaviour
         _facingDir *= -1;
         transform.Rotate(0f, 180f, 0f);
         _isFacingRight = !_isFacingRight;
-        
     }
 
     private void OnDrawGizmos()
