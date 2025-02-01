@@ -10,16 +10,22 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private float moveSpeed;
 
+    // Buffer Jump - это механизм, который позволяет игроку выполнить прыжок,
+    // даже если он нажал кнопку "прыжок" немного раньше, чем персонаж коснулся земли
+    [Header("Buffer Jump")] // 1
+    [SerializeField] private float _bufferJumpWindow = 0.25f; // 6 - Окно буфера (сколько секунд допустимо)
+    private float _bufferJumpActivated = -1; // 2 - Фиксирует момент, когда нажата клавиша прыжка, хранит момент времени (в секундах), когда была нажата клавиша
+
     [Header("Wall interaction")] // Взаимодействие со стеной
     [SerializeField] private float wallJumpDuration = 0.6f; // задержка прыжка от стены
     [SerializeField] private Vector2 wallJumpForce; // сила прыжка от стены
     private bool _isWallJumping; 
     
-    [Header("Knockback")] // 1
-    [SerializeField] private float knockbackDuration = 1; // 2
-    [SerializeField] private Vector2 knockbackPower; // 3
-    private bool _isKnocked; // 4
-    private bool _canBeKnocked; // 5
+    [Header("Knockback")] 
+    [SerializeField] private float knockbackDuration = 1; 
+    [SerializeField] private Vector2 knockbackPower; 
+    private bool _isKnocked; 
+    private bool _canBeKnocked; 
     
     [Header("Double Jump details")]
     [SerializeField] private float doubleJumpForce; // сила двойного прижка
@@ -50,7 +56,7 @@ public class Player : MonoBehaviour
     {
         HandleInput();
         
-        if(Input.GetKeyDown(KeyCode.F)) // 15 временно для проверки урона
+        if(Input.GetKeyDown(KeyCode.F)) // временно для проверки урона
         {
             Knockback();
         }
@@ -60,7 +66,7 @@ public class Player : MonoBehaviour
     {
         UpdateAirBornStatus();
         
-        if(_isKnocked) return; // 12 - мы не хотим ничего делать, если нас ударили
+        if(_isKnocked) return; // мы не хотим ничего делать, если нас ударили
         // обязательно такой порядок вызовов
         HandleWallSlide(); 
         HandleMovement();
@@ -69,14 +75,13 @@ public class Player : MonoBehaviour
         HandleAnimations();
     }
 
-    public void Knockback() // 6
+    public void Knockback() 
     {
-        if(_isKnocked) return; // 14 - если ударили, то не вызывать снова метод
-        StartCoroutine(KnockbackRoutine()); // 10
-        // _isKnocked = true; // 7 // 11
-        _animator.SetTrigger("knockback"); // 8
+        if(_isKnocked) return; // если ударили, то не вызывать снова метод
+        StartCoroutine(KnockbackRoutine()); 
+        _animator.SetTrigger("knockback"); 
         
-        _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); // 13
+        _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); 
     }
 
     private void HandleWallSlide() // метод скольжения
@@ -113,6 +118,8 @@ public class Player : MonoBehaviour
     {
         _isAirborne = false;
         _canDoubleJump = true;
+        
+        AttemtBufferJump(); // 8
     }
 
     private void HandleMovement()
@@ -135,9 +142,30 @@ public class Player : MonoBehaviour
     {
         _xInput = Input.GetAxisRaw("Horizontal"); // GetAxisRaw - строго 1 или -1, тогда как GetAxis - плавает 
         _yInput = Input.GetAxisRaw("Vertical"); // получаем вертикальное нажатие
-        
-        if (Input.GetKeyDown(KeyCode.Space)) JumpButton(); 
-        
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            JumpButton();
+            RequestBufferJump(); // 5
+        } 
+    }
+
+    // 3 - Запрос на буферизированный прыжок: Когда игрок нажимает пробел в воздухе, фиксируется момент нажатия
+    private void RequestBufferJump() 
+    {
+        if(_isAirborne) _bufferJumpActivated = Time.time; // 4 - Time.time фиксирует текущее время, когда игрок нажал кнопку прыжка.
+    }
+
+    // 7 - Когда персонаж приземляется (HandleLanding() вызывает AttemtBufferJump()),
+    // проверяется, прошло ли менее _bufferJumpWindow секунд с момента нажатия клавиши.
+    // Если условие выполняется, игрок выполняет прыжок автоматически.
+    private void AttemtBufferJump() 
+    {
+        if (Time.time < _bufferJumpActivated + _bufferJumpWindow)
+        {
+            _bufferJumpActivated = 0; // Сбрасываем буфер
+            Jump();
+        }
     }
 
     private void JumpButton() // Метод отвечающий за прыжок 
@@ -195,7 +223,7 @@ public class Player : MonoBehaviour
         _isWallJumping = false;
     }
 
-    private IEnumerator KnockbackRoutine() // 9
+    private IEnumerator KnockbackRoutine() 
     {
         _canBeKnocked = false;
         _isKnocked = true;
@@ -208,7 +236,7 @@ public class Player : MonoBehaviour
 
     private void HandleFlip() // метод переворачивания 
     {
-        // 9 - тут нам нужно поменять условие, вместо if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
+        // тут нам нужно поменять условие, вместо if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
         // на (_xInput < 0 && _isFacingRight || _xInput > 0 && !_isFacingRight) - это для убирание бега при столкновении
         // со стеной, что бы мы могли повернутся и идти в другую сторону
         if (_xInput < 0 && _isFacingRight || _xInput > 0 && !_isFacingRight)
