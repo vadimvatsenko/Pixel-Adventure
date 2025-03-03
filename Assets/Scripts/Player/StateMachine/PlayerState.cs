@@ -2,30 +2,33 @@ using UnityEngine;
 
 public class PlayerState
 {
-    protected PlayerStateMachine StateMachine;
-    protected PlayerS Hero;
+    protected readonly PlayerStateMachine StateMachine;
+    protected PlayerS Player;
+    protected Rigidbody2D Rigidbody2D;
     
     private string _animBoolName;
+    protected float XInput;
 
     public PlayerState(PlayerS player, PlayerStateMachine stateMachine, string animBoolName)
     {
-        Hero = player;
+        Player = player;
         StateMachine = stateMachine;
         _animBoolName = animBoolName;
     }
 
     public virtual void Enter()
     {
-        Hero.Animator.SetBool(_animBoolName, true);
+        Player.Animator.SetBool(_animBoolName, true);
+        Rigidbody2D = Player.Rb;
     }
 
     public virtual void Update()
     {
-        
+        XInput = Input.GetAxis("Horizontal");
     }
     
     public virtual void Exit()
     {
-        Hero.Animator.SetBool(_animBoolName, false);
+        Player.Animator.SetBool(_animBoolName, false);
     }
 }
