@@ -5,6 +5,10 @@ public class GameManager : MonoBehaviour
 
     private Player _player;
     private int _score = 0;
+
+    [Header("Fruits Management")] 
+    [SerializeField] private bool fruitsHaveRandomLook;
+    
     
     private void Awake()
     {
@@ -18,8 +22,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AddFruit()
-    {
-        _score++;
-    }
+    public void AddFruit() => _score++;
+    public bool FruitsHaveRandomLook() => fruitsHaveRandomLook;
 }
