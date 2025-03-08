@@ -83,6 +83,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fruitType: 3
+  fruitVfx: {fileID: 5792383931501158071, guid: 7b1410bf845393243aeb0f6bd065a8eb, type: 3}
 --- !u!1 &6730683159524539216
 GameObject:
   m_ObjectHideFlags: 0

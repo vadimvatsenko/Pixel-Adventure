@@ -193,3 +193,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fruitType: 7
+  fruitVfx: {fileID: 5792383931501158071, guid: 7b1410bf845393243aeb0f6bd065a8eb, type: 3}
