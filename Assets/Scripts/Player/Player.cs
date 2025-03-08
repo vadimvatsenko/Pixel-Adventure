@@ -40,6 +40,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float wallCheckDistance; // дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
     
+    [Header("VFX")] // 2 - добаляем ссылку на префаб
+    [SerializeField] private GameObject deathFX;
+    
     private bool _isGrounded; // на земле ли мы
     private bool _isAirborne; // в воздухе ли мы
     private bool _isWallDetected; // коснулись ли мы стены
@@ -82,7 +85,7 @@ public class Player : MonoBehaviour
     }
     #endregion
     
-     #region Movement and Input Logic
+    #region Movement and Input Logic
 
     private void HandleMovement()
     {
@@ -91,9 +94,7 @@ public class Player : MonoBehaviour
         
         _rb.linearVelocity = new Vector2(_xInput * moveSpeed, _rb.linearVelocity.y);
     }
-
     
-
     private void HandleInput()
     {
         _xInput = Input.GetAxisRaw("Horizontal"); // GetAxisRaw - строго 1 или -1, тогда как GetAxis - плавает 
@@ -128,7 +129,7 @@ public class Player : MonoBehaviour
     }
 
     #endregion
-
+    
     #region Buffer & Coyote Jump Logic
     
     // Запрос на буферизированный прыжок: Когда игрок нажимает пробел в воздухе, фиксируется момент нажатия
@@ -228,6 +229,12 @@ public class Player : MonoBehaviour
     }
     
     #endregion
+
+    public void Die()
+    {
+       Destroy(gameObject); // 1 - метод удаления объекта
+       GameObject newDeath = Instantiate(deathFX, transform.position, Quaternion.identity);
+    }
     
     private void HandleWallSlide() // метод скольжения
     {
