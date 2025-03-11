@@ -15,6 +15,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool fruitsHaveRandomLook;
     private int _fruitsCollected = 0;
     private int _totalFruits;
+
+    [Header("CheckPoints")] // ++
+    [SerializeField]
+    private bool canReactivate; // ++
+
+    public bool CanReactivate
+    {
+        get => canReactivate;
+    }
     
     private void Awake()
     {

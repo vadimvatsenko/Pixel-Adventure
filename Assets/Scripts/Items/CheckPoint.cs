@@ -4,15 +4,20 @@ public class CheckPoint : MonoBehaviour
     private Animator _animator;
     private bool _active;
 
-    [SerializeField] private bool _canBeReactivated; // можно ли переактивировать чекпоинт
+    [SerializeField] private bool canBeReactivated; // можно ли переактивировать чекпоинт
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
     }
+
+    private void Start() // ++
+    {
+        canBeReactivated = GameManager.Instance.CanReactivate; // ++
+    }
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if(_active && !_canBeReactivated) return;
+        if(_active && !canBeReactivated) return;
         
         Player player = other.GetComponent<Player>();
         Debug.Log(player);
