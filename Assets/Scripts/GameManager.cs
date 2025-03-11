@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // + метод который будет обновлять позицию респавна игрока
+    // метод который будет обновлять позицию респавна игрока
     public void UpdateRespawnPosition(Transform newRespawnPoint) => respawnPoint = newRespawnPoint;
     
     
