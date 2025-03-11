@@ -28,12 +28,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start() // ++
+    private void Start() 
     {
         CollectFruitsInfo();
     }
 
-    private void CollectFruitsInfo() // ++
+    private void CollectFruitsInfo() 
     {
         Fruit[] _allFruitsArray = FindObjectsOfType<Fruit>();
         _totalFruits = _allFruitsArray.Length;
