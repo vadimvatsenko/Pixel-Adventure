@@ -26,6 +26,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // + метод который будет обновлять позицию респавна игрока
+    public void UpdateRespawnPosition(Transform newRespawnPoint) => respawnPoint = newRespawnPoint;
+    
+    
     // обвёртка для курутины, теперь ее можно вызвать из другого скрипта
     public void RespawnPlayer() => StartCoroutine(RespawnCourutine()); 
     
