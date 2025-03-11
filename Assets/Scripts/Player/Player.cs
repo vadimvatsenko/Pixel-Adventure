@@ -5,10 +5,13 @@ public class Player : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private Animator _animator;
+    private CapsuleCollider2D _collider; // 1 - нам нужно будет отключать коллайдер
+    private bool canBeControlled = false; // 1 - могу ли двигать игроком
     
     [Header("Movement details")]
     [SerializeField] private float jumpForce;
     [SerializeField] private float moveSpeed;
+    private float _defaultGravityScale; // 1 - нужно запоминать дефолтную гравитацию
 
     // Buffer Jump - это механизм, который позволяет игроку выполнить прыжок,
     // даже если он нажал кнопку "прыжок" немного раньше, чем персонаж коснулся земли
@@ -57,11 +60,20 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _collider = GetComponent<CapsuleCollider2D>(); // 1 - получаем
         _animator = GetComponentInChildren<Animator>();
+    }
+
+    private void Start() // 4 - тут запишем наше дефолтное состояние гравитации
+    {
+        _defaultGravityScale = _rb.gravityScale;
+        RespawnFinished(false);
     }
     
     private void Update()
     {
+        if (!canBeControlled) return; // 3 - не можем двигаться, выходим из метода
+        
         HandleInput();
         
         if(Input.GetKeyDown(KeyCode.F)) // временно для проверки урона
@@ -84,6 +96,23 @@ public class Player : MonoBehaviour
         HandleAnimations();
     }
     #endregion
+
+    // 2 - будем определять можем ли мы двигать персонажем
+    public void RespawnFinished(bool isRespawning) 
+    {
+        if (isRespawning)
+        {
+            _rb.gravityScale = _defaultGravityScale;
+            canBeControlled = true;
+            _collider.enabled = true;
+        }
+        else
+        {
+            _rb.gravityScale = 0;
+            canBeControlled = false;
+            _collider.enabled = false;
+        }
+    }
     
     #region Movement and Input Logic
 
@@ -232,7 +261,7 @@ public class Player : MonoBehaviour
 
     public void Die()
     {
-       Destroy(gameObject); // 1 - метод удаления объекта
+       Destroy(gameObject); // метод удаления объекта
        GameObject newDeath = Instantiate(deathFX, transform.position, Quaternion.identity);
     }
     

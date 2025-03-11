@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool fruitsHaveRandomLook;
     private int _fruitsCollected = 0;
     
-    
     private void Awake()
     {
         if (Instance == null)
@@ -27,7 +26,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void RespawnPlayer() => StartCoroutine(RespawnCourutine()); // 4
+    // 4 - обвёртка для курутины, теперь ее можно вызвать из другого скрипта
+    public void RespawnPlayer() => StartCoroutine(RespawnCourutine()); 
     
     private IEnumerator RespawnCourutine() // 5
     {
