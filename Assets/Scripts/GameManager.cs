@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     [Header("Fruits Management")] 
     [SerializeField] private bool fruitsHaveRandomLook;
     private int _fruitsCollected = 0;
+    private int _totalFruits;
     
     private void Awake()
     {
@@ -24,6 +26,17 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Start() // ++
+    {
+        CollectFruitsInfo();
+    }
+
+    private void CollectFruitsInfo() // ++
+    {
+        Fruit[] _allFruitsArray = FindObjectsOfType<Fruit>();
+        _totalFruits = _allFruitsArray.Length;
     }
 
     // метод который будет обновлять позицию респавна игрока
