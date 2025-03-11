@@ -2,7 +2,7 @@ using UnityEngine;
 public class Fruit : MonoBehaviour
 {
     [SerializeField] private FruitType fruitType; // тип фрукта с enum
-    [SerializeField] private GameObject fruitVfx; // 1
+    [SerializeField] private GameObject fruitVfx; 
     
     private GameManager _gameManager;
     private Animator _animator;
@@ -43,7 +43,7 @@ public class Fruit : MonoBehaviour
             _gameManager.AddFruit();
             Destroy(this.gameObject);
             
-            GameObject newVfx = Instantiate(fruitVfx, this.transform.position, Quaternion.identity); // 2
+            GameObject newVfx = Instantiate(fruitVfx, this.transform.position, Quaternion.identity); 
         }
     }
 }

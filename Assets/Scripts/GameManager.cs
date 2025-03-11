@@ -5,9 +5,9 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("Game Objects")]
-    [SerializeField] private GameObject playerPrefab; // 1
-    [SerializeField] private Transform respawnPoint; // 2
-    [SerializeField] private float respawnDelay; // 3
+    [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private Transform respawnPoint;
+    [SerializeField] private float respawnDelay; 
     private Player player;
     
     [Header("Fruits Management")] 
@@ -26,10 +26,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 4 - обвёртка для курутины, теперь ее можно вызвать из другого скрипта
+    // обвёртка для курутины, теперь ее можно вызвать из другого скрипта
     public void RespawnPlayer() => StartCoroutine(RespawnCourutine()); 
     
-    private IEnumerator RespawnCourutine() // 5
+    private IEnumerator RespawnCourutine() 
     {
         yield return new WaitForSeconds(respawnDelay);
         

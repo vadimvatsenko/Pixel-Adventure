@@ -5,13 +5,13 @@ public class Player : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private Animator _animator;
-    private CapsuleCollider2D _collider; // 1 - нам нужно будет отключать коллайдер
-    private bool canBeControlled = false; // 1 - могу ли двигать игроком
+    private CapsuleCollider2D _collider; // нам нужно будет отключать коллайдер
+    private bool canBeControlled = false; // могу ли двигать игроком
     
     [Header("Movement details")]
     [SerializeField] private float jumpForce;
     [SerializeField] private float moveSpeed;
-    private float _defaultGravityScale; // 1 - нужно запоминать дефолтную гравитацию
+    private float _defaultGravityScale; // нужно запоминать дефолтную гравитацию
 
     // Buffer Jump - это механизм, который позволяет игроку выполнить прыжок,
     // даже если он нажал кнопку "прыжок" немного раньше, чем персонаж коснулся земли
@@ -60,11 +60,11 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _collider = GetComponent<CapsuleCollider2D>(); // 1 - получаем
+        _collider = GetComponent<CapsuleCollider2D>(); 
         _animator = GetComponentInChildren<Animator>();
     }
 
-    private void Start() // 4 - тут запишем наше дефолтное состояние гравитации
+    private void Start() // тут запишем наше дефолтное состояние гравитации
     {
         _defaultGravityScale = _rb.gravityScale;
         RespawnFinished(false);
@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
     
     private void Update()
     {
-        if (!canBeControlled) return; // 3 - не можем двигаться, выходим из метода
+        if (!canBeControlled) return; // не можем двигаться, выходим из метода
         
         HandleInput();
         
@@ -97,7 +97,7 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    // 2 - будем определять можем ли мы двигать персонажем
+    // будем определять можем ли мы двигать персонажем
     public void RespawnFinished(bool isRespawning) 
     {
         if (isRespawning)
