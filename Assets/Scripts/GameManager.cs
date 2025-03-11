@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private bool canReactivate; // ++
 
-    public bool CanReactivate
+    public bool CanReactivate // ++
     {
         get => canReactivate;
     }
