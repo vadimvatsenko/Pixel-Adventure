@@ -143,7 +143,7 @@ public class Player : MonoBehaviour
     {
         if(_isKnocked) return; // если ударили, то не вызывать снова метод
         StartCoroutine(KnockbackRoutine()); 
-        _animator.SetTrigger("knockback"); 
+        //_animator.SetTrigger("knockback"); // --
         
         _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); 
     }
@@ -151,10 +151,11 @@ public class Player : MonoBehaviour
     private IEnumerator KnockbackRoutine() 
     {
         _isKnocked = true;
-        
+        _animator.SetBool("isKnocked", _isKnocked); // ++
         yield return new WaitForSeconds(knockbackDuration);
         
         _isKnocked = false;
+        _animator.SetBool("isKnocked", _isKnocked); // ++
     }
 
     #endregion

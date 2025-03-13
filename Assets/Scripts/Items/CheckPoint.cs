@@ -20,7 +20,6 @@ public class CheckPoint : MonoBehaviour
         if(_active && !canBeReactivated) return;
         
         Player player = other.GetComponent<Player>();
-        Debug.Log(player);
         
         if(player != null) ActivateCheckPoint();
     }

@@ -16,11 +16,11 @@ public class GameManager : MonoBehaviour
     private int _fruitsCollected = 0;
     private int _totalFruits;
 
-    [Header("CheckPoints")] // ++
+    [Header("CheckPoints")] 
     [SerializeField]
-    private bool canReactivate; // ++
+    private bool canReactivate; 
 
-    public bool CanReactivate // ++
+    public bool CanReactivate 
     {
         get => canReactivate;
     }
@@ -50,7 +50,6 @@ public class GameManager : MonoBehaviour
 
     // метод который будет обновлять позицию респавна игрока
     public void UpdateRespawnPosition(Transform newRespawnPoint) => respawnPoint = newRespawnPoint;
-    
     
     // обвёртка для курутины, теперь ее можно вызвать из другого скрипта
     public void RespawnPlayer() => StartCoroutine(RespawnCourutine()); 
