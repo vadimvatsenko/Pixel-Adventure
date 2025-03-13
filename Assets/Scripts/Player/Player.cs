@@ -135,20 +135,19 @@ public class Player : MonoBehaviour
     #region Knockback Logic
 
     // ++ нужно получать позицию объекта, который наносит урон, чтобы правильно настроить отскок игрока
-    public void Knockback(float sourceDamageXPosition) // ++
+    public void Knockback(float sourceDamageXPosition) 
     {
-        float knockbackDirection = 1; // ++
+        float knockbackDirection = 1; 
         
-        if (transform.position.x < sourceDamageXPosition) // ++
+        if (transform.position.x < sourceDamageXPosition) 
         {
-            knockbackDirection = -1; // ++
+            knockbackDirection = -1; 
         }
         
         if(_isKnocked) return; // если ударили, то не вызывать снова метод
         StartCoroutine(KnockbackRoutine()); 
         
-        // ++ knockbackDirection
-        _rb.linearVelocity = new Vector2(knockbackPower.x * knockbackDirection, knockbackPower.y); // ++
+        _rb.linearVelocity = new Vector2(knockbackPower.x * knockbackDirection, knockbackPower.y); 
     }
     
     private IEnumerator KnockbackRoutine() 

@@ -12,11 +12,11 @@ public class TrapSaw : MonoBehaviour
     [SerializeField] private float cooldown = 1;
     [SerializeField] private Transform[] wayPoints;
     
-    private Vector3[] _wayPointPositions; // ++
+    private Vector3[] _wayPointPositions;
     
     private bool _canMove = true;
     private int _waypointIndex = 1;
-    private int _moveDirection = 1; // ++ 
+    private int _moveDirection = 1; 
     
 
     private void Awake()
@@ -26,19 +26,18 @@ public class TrapSaw : MonoBehaviour
     }
     private void Start()
     {
-        UpdatesWayPointsInfo(); // ++
+        UpdatesWayPointsInfo(); 
         
-        //transform.position = wayPoints[0].position; // --
         transform.position = _wayPointPositions[0];
     }
 
-    private void UpdatesWayPointsInfo() // ++
+    private void UpdatesWayPointsInfo() 
     {
-        _wayPointPositions = new Vector3[wayPoints.Length]; // ++ инициализируем количеством объектов
+        _wayPointPositions = new Vector3[wayPoints.Length]; //  инициализируем количеством объектов
 
-        for (int i = 0; i < wayPoints.Length; i++) // ++ проходимся циклом и записываем мировую позицию 
+        for (int i = 0; i < wayPoints.Length; i++) //  проходимся циклом и записываем мировую позицию 
         {
-            _wayPointPositions[i] = wayPoints[i].position; // ++
+            _wayPointPositions[i] = wayPoints[i].position;
         }
     }
 
@@ -48,15 +47,14 @@ public class TrapSaw : MonoBehaviour
         
         if(!_canMove) return;
         
-        //transform.position = Vector3.MoveTowards(transform.position, wayPoints[_waypointIndex].position, speed * Time.fixedDeltaTime); // --
-        transform.position = Vector3.MoveTowards(transform.position, _wayPointPositions[_waypointIndex], speed * Time.fixedDeltaTime); // ++
-
-        //if (Vector2.Distance(transform.position, wayPoints[_waypointIndex].position) < 0.1f) // --
+        transform.position = 
+            Vector3.MoveTowards(
+                transform.position, 
+                _wayPointPositions[_waypointIndex], 
+                speed * Time.fixedDeltaTime);
+        
         if (Vector2.Distance(transform.position, _wayPointPositions[_waypointIndex]) < 0.1f) // ++
         {
-            //_waypointIndex++; // --
-
-            //if (_waypointIndex == wayPoints.Length - 1 || _waypointIndex == 0) // ++ реверс в другую сторону // --
             if (_waypointIndex == _wayPointPositions.Length - 1 || _waypointIndex == 0) // ++
             {
                 _moveDirection = _moveDirection * -1; // ++
@@ -64,12 +62,6 @@ public class TrapSaw : MonoBehaviour
             }
             _waypointIndex = _waypointIndex + _moveDirection;
             
-
-            /*if (_waypointIndex >= wayPoints.Length) // --
-            {
-                _waypointIndex = 0;
-                StartCoroutine(StopMovement(cooldown));
-            }*/
         }
     }
 
