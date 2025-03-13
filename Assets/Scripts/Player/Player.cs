@@ -75,11 +75,6 @@ public class Player : MonoBehaviour
         if (!canBeControlled) return; // не можем двигаться, выходим из метода
         
         HandleInput();
-        
-        if(Input.GetKeyDown(KeyCode.F)) // временно для проверки урона
-        {
-            Knockback();
-        }
     }
 
     private void FixedUpdate()
@@ -139,23 +134,31 @@ public class Player : MonoBehaviour
     
     #region Knockback Logic
 
-    public void Knockback() 
+    // ++ нужно получать позицию объекта, который наносит урон, чтобы правильно настроить отскок игрока
+    public void Knockback(float sourceDamageXPosition) // ++
     {
+        float knockbackDirection = 1; // ++
+        
+        if (transform.position.x < sourceDamageXPosition) // ++
+        {
+            knockbackDirection = -1; // ++
+        }
+        
         if(_isKnocked) return; // если ударили, то не вызывать снова метод
         StartCoroutine(KnockbackRoutine()); 
-        //_animator.SetTrigger("knockback"); // --
         
-        _rb.linearVelocity = new Vector2(knockbackPower.x * -_facingDir, knockbackPower.y); 
+        // ++ knockbackDirection
+        _rb.linearVelocity = new Vector2(knockbackPower.x * knockbackDirection, knockbackPower.y); // ++
     }
     
     private IEnumerator KnockbackRoutine() 
     {
         _isKnocked = true;
-        _animator.SetBool("isKnocked", _isKnocked); // ++
+        _animator.SetBool("isKnocked", _isKnocked);
         yield return new WaitForSeconds(knockbackDuration);
         
         _isKnocked = false;
-        _animator.SetBool("isKnocked", _isKnocked); // ++
+        _animator.SetBool("isKnocked", _isKnocked); 
     }
 
     #endregion

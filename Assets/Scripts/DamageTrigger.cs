@@ -8,6 +8,6 @@ public class DamageTrigger : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         _player = other.gameObject.GetComponent<Player>();
-        _player?.Knockback(); // _player? если есть игрок
+        _player?.Knockback(this.transform.position.x); // _player? если есть игрок // ++ передали transform.position.x
     }
 }
