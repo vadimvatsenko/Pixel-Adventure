@@ -276,7 +276,7 @@ public class Player : MonoBehaviour
     private IEnumerator PushCourotine(Vector2 direction, float duration) // ++
     {
         canBeControlled = false; // ++
-        _rb.linearVelocity = Vector2.zero; // ++
+        _rb.linearVelocity = Vector2.zero; // ++ Сброс скорости
         _rb.AddForce(direction, ForceMode2D.Impulse); // ++
         yield return new WaitForSeconds(duration); // ++
         canBeControlled = true; // ++
