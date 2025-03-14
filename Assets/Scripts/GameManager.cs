@@ -5,7 +5,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [Header("Game Objects")]
+    [Header("Game Objects")] 
+    
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private float respawnDelay; 
@@ -17,13 +18,12 @@ public class GameManager : MonoBehaviour
     private int _totalFruits;
 
     [Header("CheckPoints")] 
-    [SerializeField]
-    private bool canReactivate; 
-
-    public bool CanReactivate 
-    {
-        get => canReactivate;
-    }
+    [SerializeField] private bool canReactivate;
+    
+    [Header("Traps")]
+    [SerializeField] private GameObject arrowPrefab; // ++
+    public GameObject ArrowPrefab => arrowPrefab; // ++ свойство вернёт префаб
+    public bool CanReactivate => canReactivate;
     
     private void Awake()
     {
@@ -46,6 +46,22 @@ public class GameManager : MonoBehaviour
     {
         Fruit[] _allFruitsArray = FindObjectsOfType<Fruit>();
         _totalFruits = _allFruitsArray.Length;
+    }
+
+    // ++ метод обвертка для курутины.
+    public void CreateObject(GameObject prefab, Transform target, float delay)
+    {
+        StartCoroutine(CreateObjectRoutine(prefab, target, delay));
+    }
+
+    // ++ курутина создания объектов
+    private IEnumerator CreateObjectRoutine(GameObject prefab, Transform target, float delay) 
+    {
+        Vector3 position = target.position;
+        
+        yield return new WaitForSeconds(delay);
+        
+        GameObject newObject = Instantiate(prefab, position, Quaternion.identity);
     }
 
     // метод который будет обновлять позицию респавна игрока

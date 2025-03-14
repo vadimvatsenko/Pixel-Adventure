@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float wallCheckDistance; // дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
     
-    [Header("VFX")] // 2 - добаляем ссылку на префаб
+    [Header("VFX")] // добаляем ссылку на префаб
     [SerializeField] private GameObject deathFX;
     
     private bool _isGrounded; // на земле ли мы
@@ -72,7 +72,6 @@ public class Player : MonoBehaviour
     
     private void Update()
     {
-        // if (!canBeControlled) return; // не можем двигаться, выходим из метода // --
         HandleInput();
     }
 
@@ -82,10 +81,10 @@ public class Player : MonoBehaviour
         
         if(_isKnocked) return; // мы не хотим ничего делать, если нас ударили
         
-        if (!canBeControlled) // ++
+        if (!canBeControlled) 
         {
-            HandleCollisions(); // ++
-            HandleAnimations(); // ++
+            HandleCollisions(); 
+            HandleAnimations(); 
         }
         
         // обязательно такой порядок вызовов
@@ -268,18 +267,18 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Push Logic
-    public void Push(Vector2 direction, float duration = 0) // ++ метод который будет ускорять игрока
+    public void Push(Vector2 direction, float duration = 0) // метод который будет ускорять игрока
     {
         StartCoroutine(PushCourotine(direction, duration));
     }
 
     private IEnumerator PushCourotine(Vector2 direction, float duration) // ++
     {
-        canBeControlled = false; // ++
-        _rb.linearVelocity = Vector2.zero; // ++ Сброс скорости
-        _rb.AddForce(direction, ForceMode2D.Impulse); // ++
-        yield return new WaitForSeconds(duration); // ++
-        canBeControlled = true; // ++
+        canBeControlled = false; 
+        _rb.linearVelocity = Vector2.zero; // Сброс скорости
+        _rb.AddForce(direction, ForceMode2D.Impulse); 
+        yield return new WaitForSeconds(duration); 
+        canBeControlled = true; 
     }
     #endregion
     
@@ -340,8 +339,8 @@ public class Player : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine
-            (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance)); // лучь на пол
+            (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance)); // луч на пол
         Gizmos.DrawLine
-            (transform.position, new Vector2(transform.position.x + (wallCheckDistance * _facingDir), transform.position.y)); // лучь на стену
+            (transform.position, new Vector2(transform.position.x + (wallCheckDistance * _facingDir), transform.position.y)); // луч на стену
     }
 }
