@@ -72,8 +72,7 @@ public class Player : MonoBehaviour
     
     private void Update()
     {
-        if (!canBeControlled) return; // не можем двигаться, выходим из метода
-        
+        // if (!canBeControlled) return; // не можем двигаться, выходим из метода // --
         HandleInput();
     }
 
@@ -82,6 +81,12 @@ public class Player : MonoBehaviour
         UpdateAirBornStatus();
         
         if(_isKnocked) return; // мы не хотим ничего делать, если нас ударили
+        
+        if (!canBeControlled) // ++
+        {
+            HandleCollisions(); // ++
+            HandleAnimations(); // ++
+        }
         
         // обязательно такой порядок вызовов
         HandleWallSlide(); 
@@ -262,6 +267,22 @@ public class Player : MonoBehaviour
     
     #endregion
 
+    #region Push Logic
+    public void Push(Vector2 direction, float duration = 0) // ++ метод который будет ускорять игрока
+    {
+        StartCoroutine(PushCourotine(direction, duration));
+    }
+
+    private IEnumerator PushCourotine(Vector2 direction, float duration) // ++
+    {
+        canBeControlled = false; // ++
+        _rb.linearVelocity = Vector2.zero; // ++
+        _rb.AddForce(direction, ForceMode2D.Impulse); // ++
+        yield return new WaitForSeconds(duration); // ++
+        canBeControlled = true; // ++
+    }
+    #endregion
+    
     public void Die()
     {
        Destroy(gameObject); // метод удаления объекта
