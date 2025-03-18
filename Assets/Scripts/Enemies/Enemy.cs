@@ -1,14 +1,23 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
     protected Animator anim;
     protected Rigidbody2D rb;
-    
-    [SerializeField] protected float movementSpeed;
-    [SerializeField] protected float idleDuration;
-    protected float IdleTimer; 
+
+    [SerializeField] protected GameObject damageTrigger; // ++
+    [Space] // ++
+    [SerializeField] protected float movementSpeed = 2f; // ++
+    [SerializeField] protected float idleDuration = 1.5f; // ++
+    protected float IdleTimer;
+
+    [Header("Death Details")] // ++
+    [SerializeField] private float deathImpactSpeed = 5; // ++
+    [SerializeField] private float deathRotationSpeed = 150; // ++
+    private int _deathRotationDirection = 1; // ++
+    protected bool IsDead; // ++
         
     [Header("Basic collision")] 
     [SerializeField] protected float groundCheckDistance = 1.1f;
@@ -32,6 +41,27 @@ public class Enemy : MonoBehaviour
     protected virtual void FixedUpdate()
     {
         IdleTimer -= Time.fixedDeltaTime;
+        
+        if(IsDead) HandleDeathRotation(); // ++
+    }
+
+    public virtual void Die() // ++
+    {
+        damageTrigger.SetActive(false); // ++
+        anim.SetTrigger("hit"); // ++
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, deathImpactSpeed); // ++
+        
+        IsDead = true; // ++
+
+        if (Random.Range(0f, 100f) < 50) // ++
+        {
+            _deathRotationDirection = _deathRotationDirection * -1; // ++
+        }
+    }
+
+    private void HandleDeathRotation() // ++
+    {
+        transform.Rotate(0,0,(_deathRotationDirection * deathRotationSpeed) * Time.fixedDeltaTime); // ++
     }
 
     protected virtual void HandleCollisions()

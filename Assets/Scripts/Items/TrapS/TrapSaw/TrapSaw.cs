@@ -38,8 +38,6 @@ public class TrapSaw : MonoBehaviour
         List<TrapsSawWayPoint> trapsSawWayPointsList 
             = new List<TrapsSawWayPoint>(GetComponentsInChildren<TrapsSawWayPoint>()); // ++
         
-        Debug.Log(trapsSawWayPointsList.Count);
-
         // будем заполнять список
         if (trapsSawWayPointsList.Count != wayPoints.Length) // ++
         {

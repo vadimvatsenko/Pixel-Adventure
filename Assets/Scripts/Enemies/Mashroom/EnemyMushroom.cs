@@ -2,9 +2,12 @@ using UnityEngine;
 
 public class EnemyMushroom : Enemy
 {
+    private BoxCollider2D boxCollider; // ++
+    
     protected override void Awake()
     {
         base.Awake();
+        boxCollider = GetComponent<BoxCollider2D>(); // ++
     }
 
     protected override void FixedUpdate()
@@ -13,6 +16,8 @@ public class EnemyMushroom : Enemy
         
         anim.SetFloat("xVelocity", rb.linearVelocity.x);
         
+        if(IsDead) return; // ++
+        
         HandleMovement();
         HandleCollisions();
 
@@ -20,6 +25,13 @@ public class EnemyMushroom : Enemy
         {
             HandleTurnAround();
         }
+    }
+
+    public override void Die()
+    {
+        base.Die();
+        boxCollider.enabled = false;
+        
     }
 
     private void HandleTurnAround()

@@ -42,6 +42,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private float wallCheckDistance; // дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
+    [Space] // ++
+    [SerializeField] private Transform enemyCheck; // ++
+    [SerializeField] private float enemyCheckRadius; // ++
+    [SerializeField] private LayerMask whatIsEnemy; // ++
     
     [Header("VFX")] // добаляем ссылку на префаб
     [SerializeField] private GameObject deathFX;
@@ -77,15 +81,18 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        
         UpdateAirBornStatus();
         
-        if(_isKnocked) return; // мы не хотим ничего делать, если нас ударили
         
         if (!canBeControlled) 
         {
             HandleCollisions(); 
             HandleAnimations(); 
         }
+        if(_isKnocked) return; // мы не хотим ничего делать, если нас ударили
+
+        HandleEnemyDetection(); // ++
         
         // обязательно такой порядок вызовов
         HandleWallSlide(); 
@@ -94,6 +101,24 @@ public class Player : MonoBehaviour
         HandleCollisions();
         HandleAnimations();
     }
+
+    private void HandleEnemyDetection() // ++
+    {
+        if (_rb.linearVelocity.y >= 0) return; // ++
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(enemyCheck.position, enemyCheckRadius, whatIsEnemy); // ++
+
+        foreach (var enemy in colliders) // ++
+        {
+            Enemy newEnemy = enemy.GetComponent<Enemy>();
+            if (newEnemy != null)
+            {
+                newEnemy.Die();
+                Jump();
+            }
+        }
+    }
+
     #endregion
 
     // будем определять можем ли мы двигать персонажем
@@ -272,7 +297,7 @@ public class Player : MonoBehaviour
         StartCoroutine(PushCourotine(direction, duration));
     }
 
-    private IEnumerator PushCourotine(Vector2 direction, float duration) // ++
+    private IEnumerator PushCourotine(Vector2 direction, float duration) 
     {
         canBeControlled = false; 
         _rb.linearVelocity = Vector2.zero; // Сброс скорости
@@ -338,6 +363,7 @@ public class Player : MonoBehaviour
     
     private void OnDrawGizmos()
     {
+        Gizmos.DrawWireSphere(enemyCheck.position, enemyCheckRadius); // ++
         Gizmos.DrawLine
             (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance)); // луч на пол
         Gizmos.DrawLine
