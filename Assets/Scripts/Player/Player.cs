@@ -42,10 +42,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private float wallCheckDistance; // дистанция до стены
     [SerializeField] private LayerMask whatIsGround;
-    [Space] // ++
-    [SerializeField] private Transform enemyCheck; // ++
-    [SerializeField] private float enemyCheckRadius; // ++
-    [SerializeField] private LayerMask whatIsEnemy; // ++
+    [Space] 
+    [SerializeField] private Transform enemyCheck; 
+    [SerializeField] private float enemyCheckRadius; 
+    [SerializeField] private LayerMask whatIsEnemy; 
     
     [Header("VFX")] // добаляем ссылку на префаб
     [SerializeField] private GameObject deathFX;
@@ -363,7 +363,7 @@ public class Player : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(enemyCheck.position, enemyCheckRadius); // ++
+        Gizmos.DrawWireSphere(enemyCheck.position, enemyCheckRadius); 
         Gizmos.DrawLine
             (transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance)); // луч на пол
         Gizmos.DrawLine

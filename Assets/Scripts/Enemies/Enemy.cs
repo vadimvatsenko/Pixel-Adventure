@@ -4,26 +4,31 @@ using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
-    protected Animator anim;
-    protected Rigidbody2D rb;
-
-    [SerializeField] protected GameObject damageTrigger; // ++
-    [Space] // ++
-    [SerializeField] protected float movementSpeed = 2f; // ++
-    [SerializeField] protected float idleDuration = 1.5f; // ++
+    protected Animator Anim;
+    protected Rigidbody2D Rb;
+    protected Collider2D Col; // ++
+    protected Transform Player; // ++
+    
+    [SerializeField] protected GameObject damageTrigger; 
+    
+    [Header("General Info")]
+    [SerializeField] protected float movementSpeed = 2f;
+    protected bool CanMove = true; // ++
+    [SerializeField] protected float idleDuration = 1.5f; 
     protected float IdleTimer;
 
-    [Header("Death Details")] // ++
-    [SerializeField] private float deathImpactSpeed = 5; // ++
-    [SerializeField] private float deathRotationSpeed = 150; // ++
-    private int _deathRotationDirection = 1; // ++
-    protected bool IsDead; // ++
+    [Header("Death Details")] 
+    [SerializeField] private float deathImpactSpeed = 5; 
+    [SerializeField] private float deathRotationSpeed = 150; 
+    private int _deathRotationDirection = 1; 
+    protected bool IsDead; 
         
     [Header("Basic collision")] 
     [SerializeField] protected float groundCheckDistance = 1.1f;
     [SerializeField] protected float wallCheckDistance = 0.7f;
     [SerializeField] protected LayerMask whatIsGround;
     [SerializeField] protected Transform groundCheck;
+    [SerializeField] protected LayerMask whatIsPlayer; // ++
     
     protected bool IsGrounded;
     protected bool IsWallDetected;
@@ -34,34 +39,58 @@ public class Enemy : MonoBehaviour
     
     protected virtual void Awake()
     {
-        anim = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();
+        Anim = GetComponent<Animator>();
+        Rb = GetComponent<Rigidbody2D>();
+        Col = GetComponent<Collider2D>();
+    }
+
+    protected virtual void Start() // ++
+    {
+        Player = GameObject.FindObjectOfType<Player>().transform;
+        //InvokeRepeating(nameof(UpdatePlayer), 0, 1);
+        GameManager.Instance.OnPlayerRespawned += UpdatePlayer;
+    }
+
+    protected void OnDisable()
+    {
+        GameManager.Instance.OnPlayerRespawned += UpdatePlayer;
+    }
+
+    private void UpdatePlayer() // ++
+    {
+        if (!Player)
+        {
+            Player = GameManager.Instance.Player.transform;
+        }
     }
 
     protected virtual void FixedUpdate()
     {
         IdleTimer -= Time.fixedDeltaTime;
         
-        if(IsDead) HandleDeathRotation(); // ++
+        if(IsDead) HandleDeathRotation(); 
     }
 
-    public virtual void Die() // ++
+    public virtual void Die() 
     {
-        damageTrigger.SetActive(false); // ++
-        anim.SetTrigger("hit"); // ++
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, deathImpactSpeed); // ++
+        Col.enabled = false; // ++
+        damageTrigger.SetActive(false); 
+        Anim.SetTrigger("hit"); 
+        Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, deathImpactSpeed); 
         
-        IsDead = true; // ++
+        IsDead = true; 
 
-        if (Random.Range(0f, 100f) < 50) // ++
+        if (Random.Range(0f, 100f) < 50) 
         {
-            _deathRotationDirection = _deathRotationDirection * -1; // ++
+            _deathRotationDirection = _deathRotationDirection * -1; 
         }
+        
+        Destroy(this.gameObject, 5f); 
     }
 
-    private void HandleDeathRotation() // ++
+    private void HandleDeathRotation() 
     {
-        transform.Rotate(0,0,(_deathRotationDirection * deathRotationSpeed) * Time.fixedDeltaTime); // ++
+        transform.Rotate(0,0,(_deathRotationDirection * deathRotationSpeed) * Time.fixedDeltaTime); 
     }
 
     protected virtual void HandleCollisions()
@@ -78,7 +107,9 @@ public class Enemy : MonoBehaviour
         // тут нам нужно поменять условие, вместо if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
         // на (_xInput < 0 && _isFacingRight || _xInput > 0 && !_isFacingRight) - это для убирание бега при столкновении
         // со стеной, что бы мы могли повернутся и идти в другую сторону
-        if (xValue < 0 && IsFacingRight || xValue > 0 && !IsFacingRight)
+        
+        //if (xValue < 0 && IsFacingRight || xValue > 0 && !IsFacingRight) // --
+        if (xValue < transform.position.x && IsFacingRight || xValue > transform.position.x && !IsFacingRight) // ++
         {
             Flip();
         }
@@ -90,7 +121,7 @@ public class Enemy : MonoBehaviour
         IsFacingRight = !IsFacingRight;
     }
     
-    private void OnDrawGizmos()
+    protected virtual void OnDrawGizmos() // ++ был private
     {
         Gizmos.DrawLine
             (transform.position, new Vector2(groundCheck.position.x, transform.position.y - groundCheckDistance)); // луч на пол

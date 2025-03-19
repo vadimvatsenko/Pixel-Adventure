@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -10,7 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private float respawnDelay; 
-    private Player player;
+    public Player Player { get; private set; }
     
     [Header("Fruits Management")] 
     [SerializeField] private bool fruitsHaveRandomLook;
@@ -24,6 +25,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject arrowPrefab; // ++
     public GameObject ArrowPrefab => arrowPrefab; // ++ свойство вернёт префаб
     public bool CanReactivate => canReactivate;
+    public event Action OnPlayerRespawned; // ++
     
     private void Awake()
     {
@@ -68,14 +70,18 @@ public class GameManager : MonoBehaviour
     public void UpdateRespawnPosition(Transform newRespawnPoint) => respawnPoint = newRespawnPoint;
     
     // обвёртка для курутины, теперь ее можно вызвать из другого скрипта
-    public void RespawnPlayer() => StartCoroutine(RespawnCourutine()); 
+    public void RespawnPlayer()
+    {
+        OnPlayerRespawned?.Invoke();
+        StartCoroutine(RespawnCourutine());
+    }
     
     private IEnumerator RespawnCourutine() 
     {
         yield return new WaitForSeconds(respawnDelay);
         
         GameObject newPlayer = Instantiate(playerPrefab, respawnPoint.position, Quaternion.identity);
-        player = newPlayer.GetComponent<Player>();
+        Player = newPlayer.GetComponent<Player>();
     }
     public void AddFruit() => _fruitsCollected++;
     public bool FruitsHaveRandomLook() => fruitsHaveRandomLook;

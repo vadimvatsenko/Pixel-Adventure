@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ChickenEnemy_AC
+  m_Controller: {fileID: 9100000, guid: b77621a2b9b2ae84bae28572b4b0364c, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: f396106dd6aa6a24c849647175ca380e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 5a1f6ca7edc8b2846907dd7fd8b485c2, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 9bcfc5a557cd044498aad0bb023970c4, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 71e2cbe2fb1f6804ebcf0b11a4626136, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 800f10960d22c5b48af661a4a0834f47, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: cfe61f17c5badbc409ba72b2b6733184, type: 2}
