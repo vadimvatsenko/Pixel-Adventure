@@ -3,13 +3,12 @@ using UnityEngine;
 public class Chicken : Enemy
 {
     [Header("Chicken details")] 
-    [SerializeField] private float aggroDuration;
-    [SerializeField] private float detectionRange;
+    [SerializeField] private float aggroDuration; // продолжительность агрессии 
+    [SerializeField] private float detectionRange; // расстояние до игрока
     
-    private float _aggroTimer;
-    private bool _playerDetection;
-    private bool _canFlip = true;
-    
+    private float _aggroTimer; // таймер агресивности
+    private bool _playerDetection; // обнаружен ли игрок
+    private bool _canFlip = true; // можно ли развернутся
     
     protected override void FixedUpdate()
     {
