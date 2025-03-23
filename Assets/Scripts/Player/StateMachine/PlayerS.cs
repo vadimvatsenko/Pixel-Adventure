@@ -21,6 +21,8 @@ public class PlayerS : MonoBehaviour
     
     #region States
     public PlayerStateMachine StateMachine { get; private set; }
+    public PlayerIdleMoveState IdleMoveState { get; private set; }
+    public PlayerJumpFallState JumpFallState { get; private set; }
     
     #endregion
     
@@ -36,7 +38,8 @@ public class PlayerS : MonoBehaviour
     private void Awake()
     {
         StateMachine = new PlayerStateMachine();
-        
+        IdleMoveState = new PlayerIdleMoveState(this, StateMachine, "MoveIdle");
+        JumpFallState = new PlayerJumpFallState(this, StateMachine, "JumpFall");
     }
 
     private void Start()
@@ -44,35 +47,33 @@ public class PlayerS : MonoBehaviour
         Animator = GetComponentInChildren<Animator>();
         Rb  = GetComponent<Rigidbody2D>();
         
+        StateMachine.Initialize(IdleMoveState);
     }
 
     private void Update()
     {
-        HandelInput();
+        StateMachine.CurrentState.Update();
     }
 
     private void FixedUpdate()
     {
-        StateMachine.CurrentState.Update();
-        
-        Flip();
+        StateMachine.CurrentState.FixedUpdate();
     }
-
-    private void HandelInput()
-    {
-        Xinput = Input.GetAxisRaw("Horizontal");
-        Yinput = Input.GetAxisRaw("Vertical");
-    }
-
-    private void Flip()
-    {
-        if (Rb.linearVelocity.x < 0 && _isFacingRight || Rb.linearVelocity.x > 0 && !_isFacingRight)
-        {
-            _isFacingRight = !_isFacingRight;
-            this.transform.Rotate(0f, 180f, 0f);
-            _facingDir *= -1;
-        }
-    }
+    
+    public void HandleFlip() // 4 - метод переворачивания  
+    {  
+        if (Rb.linearVelocity.x < 0 && _isFacingRight || Rb.linearVelocity.x > 0 && !_isFacingRight)  
+        {            
+            Flip();  
+        }    
+    }    
+    
+    private void Flip() // 5  
+    {  
+        _facingDir *= -1;  
+        transform.Rotate(0f, 180f, 0f);  
+        _isFacingRight = !_isFacingRight;  
+    }  
     
     public bool IsGroundDetected() => 
         Physics2D.Raycast(this.transform.position, Vector2.down, groundCheckDistance, whatIsGround);

@@ -1,34 +1,63 @@
 using UnityEngine;
 
-public class PlayerState
+public  class PlayerState
 {
     protected readonly PlayerStateMachine StateMachine;
-    protected PlayerS Player;
+    protected readonly PlayerS Hero;
     protected Rigidbody2D Rigidbody2D;
     
-    private string _animBoolName;
+    private readonly string _animBoolName;
     protected float XInput;
 
-    public PlayerState(PlayerS player, PlayerStateMachine stateMachine, string animBoolName)
+    public PlayerState(PlayerS hero, PlayerStateMachine stateMachine): this(hero, stateMachine, null)
     {
-        Player = player;
+        StateMachine = stateMachine;
+        Hero = hero;
+    }
+    protected PlayerState(PlayerS hero, PlayerStateMachine stateMachine, string animBoolName)
+    {
+        Hero = hero;
         StateMachine = stateMachine;
         _animBoolName = animBoolName;
     }
 
     public virtual void Enter()
     {
-        Player.Animator.SetBool(_animBoolName, true);
-        Rigidbody2D = Player.Rb;
+        Hero.Animator.SetBool(_animBoolName, true);
+        Rigidbody2D = Hero.Rb;
     }
 
     public virtual void Update()
     {
-        XInput = Input.GetAxis("Horizontal");
+        Debug.Log($"I am in {_animBoolName}");
+        XInput = Input.GetAxisRaw("Horizontal");
+        
+        SetAnimation();
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            StateMachine.ChangeState(Hero.JumpFallState);
+        }
+
+        if (Hero.IsGroundDetected())
+        {
+            StateMachine.ChangeState(Hero.IdleMoveState);
+        }
+    }
+
+    public virtual void FixedUpdate()
+    {
+        
     }
     
     public virtual void Exit()
     {
-        Player.Animator.SetBool(_animBoolName, false);
+        Hero.Animator.SetBool(_animBoolName, false);
+    }
+
+    private void SetAnimation()
+    {
+        Hero.Animator.SetFloat("xVelocity", XInput);
+        Hero.Animator.SetFloat("yVelocity", Hero.Rb.velocity.y);
     }
 }

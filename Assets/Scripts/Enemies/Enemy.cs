@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -7,7 +8,7 @@ public class Enemy : MonoBehaviour
     protected Animator Anim;
     protected Rigidbody2D Rb;
     protected Collider2D Col; // ++
-    protected Transform Player; // ++
+    [CanBeNull] protected Transform Player; // ++
     
     [SerializeField] protected GameObject damageTrigger; 
     
@@ -46,7 +47,8 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Start() // ++
     {
-        Player = GameObject.FindObjectOfType<Player>().transform;
+        
+        //Player = GameObject.FindObjectOfType<Player>().transform;
         //InvokeRepeating(nameof(UpdatePlayer), 0, 1);
         GameManager.Instance.OnPlayerRespawned += UpdatePlayer;
     }
