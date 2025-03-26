@@ -1,0 +1,48 @@
+@startuml
+
+class Player
+{
+    -- Components --
+    
+    + Animator : Animator
+    + Rb : Rigidbody2D
+    
+    --Direction--
+     
+    + XInput : float
+    + YInput : float
+    - _isFacingRight : bool = true
+    - _facingDir : int = 1
+    
+    --States--
+    + StateMachine : PlayerStateMachine
+    + IdleMoveState : PlayerIdleMoveState
+    + JumpFallState : PlayerJumpFallState
+    
+    --Movement details--
+    
+    - [SerializeField] jumpForce : float
+    - [SerializeField] moveSpeed : float
+    
+    --Property--
+    + JumpForce => jumpForce
+    + MoveSpeed => moveSpeed
+    
+    --Collision Info--
+    
+    - [SerializeField] groundCheckDistance : float
+    - [SerializeField] wallCheckDistance : float
+    - [SerializeField] whatIsGround : LayerMask
+    
+    --Methods--
+    - Awake()
+    - Start()
+    - Update()
+    - FixedUpdate()
+    + HandleFlip()
+    - Flip()
+    + IsGroundDetected() : bool
+   
+}
+
+@enduml

@@ -1,10 +1,7 @@
 ﻿
-
-    using UnityEngine;
-
-    public class PlayerJumpFallState : PlayerAirState
+    public class PlayerAirState : PlayerState
     {
-        public PlayerJumpFallState(PlayerS hero, PlayerStateMachine stateMachine, string animBoolName) : base(hero,
+        public PlayerAirState(PlayerS hero, PlayerStateMachine stateMachine, string animBoolName) : base(hero,
             stateMachine, animBoolName)
         {
         }
@@ -12,7 +9,6 @@
         public override void Enter()
         {
             base.Enter();
-            Hero.Rb.linearVelocity = new Vector2(Hero.Rb.linearVelocity.x, Hero.JumpForce);
         }
 
         public override void Update()
@@ -23,6 +19,11 @@
         public override void FixedUpdate()
         {
             base.FixedUpdate();
+
+            /*if (Hero.Rb.linearVelocity.y == 0)
+            {
+                StateMachine.ChangeState(Hero.IdleMoveState);
+            }*/
         }
 
         public override void Exit()

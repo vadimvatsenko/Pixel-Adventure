@@ -8,7 +8,7 @@ public class PlayerS : MonoBehaviour
     #endregion
     
     #region Direction
-    public float Xinput { get; private set; }
+    public float XInput { get; private set; }
     public float Yinput { get; private set; }
     private bool _isFacingRight = true; // смотрит ли персонаж на право
     private int _facingDir = 1; // если смотрит в право (1), на лево (-1)
@@ -20,9 +20,11 @@ public class PlayerS : MonoBehaviour
     #endregion
     
     #region States
+    public PlayerStateController PlayerStateController { get; private set; }
     public PlayerStateMachine StateMachine { get; private set; }
     public PlayerIdleMoveState IdleMoveState { get; private set; }
     public PlayerJumpFallState JumpFallState { get; private set; }
+    public PlayerAirState AirState { get; private set; }
     
     #endregion
     
@@ -37,22 +39,27 @@ public class PlayerS : MonoBehaviour
     
     private void Awake()
     {
-        StateMachine = new PlayerStateMachine();
-        IdleMoveState = new PlayerIdleMoveState(this, StateMachine, "MoveIdle");
-        JumpFallState = new PlayerJumpFallState(this, StateMachine, "JumpFall");
+        Animator = GetComponentInChildren<Animator>();
+        Rb  = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
     {
-        Animator = GetComponentInChildren<Animator>();
-        Rb  = GetComponent<Rigidbody2D>();
+        StateMachine = new PlayerStateMachine();
+        IdleMoveState = new PlayerIdleMoveState(this, StateMachine, "MoveIdle");
+        JumpFallState = new PlayerJumpFallState(this, StateMachine, "JumpFall");
+        AirState = new PlayerAirState(this, StateMachine, "JumpFall");
         
+        PlayerStateController = new PlayerStateController(this, StateMachine);
         StateMachine.Initialize(IdleMoveState);
     }
 
     private void Update()
     {
         StateMachine.CurrentState.Update();
+        PlayerStateController.Update();
+        
+        XInput = Input.GetAxisRaw("Horizontal");
     }
 
     private void FixedUpdate()
@@ -77,6 +84,11 @@ public class PlayerS : MonoBehaviour
     
     public bool IsGroundDetected() => 
         Physics2D.Raycast(this.transform.position, Vector2.down, groundCheckDistance, whatIsGround);
-
-    
+    public bool IsWallDetected() => 
+        Physics2D.Raycast(this.transform.position, Vector2.right * _facingDir, wallCheckDistance, whatIsGround);
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(this.transform.position, transform.position + Vector3.down * groundCheckDistance);
+    }
 }
