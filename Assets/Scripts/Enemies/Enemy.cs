@@ -5,9 +5,10 @@ using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
+    private static readonly int Hit = Animator.StringToHash("hit");
     protected Animator Anim;
     protected Rigidbody2D Rb;
-    protected Collider2D Col; // ++
+    [SerializeField] protected Collider2D[] Col; // ++
     [CanBeNull] protected Transform Player; // ++
     
     [SerializeField] protected GameObject damageTrigger; 
@@ -35,49 +36,50 @@ public class Enemy : MonoBehaviour
     protected bool IsWallDetected;
     protected bool IsGroundInFrontDetected;
 
-    protected int facingDirection = -1;
+    protected int FacingDirection = -1;
     protected bool IsFacingRight = false;
     
     protected virtual void Awake()
     {
         Anim = GetComponent<Animator>();
         Rb = GetComponent<Rigidbody2D>();
-        Col = GetComponent<Collider2D>();
+        Col = GetComponentsInChildren<Collider2D>();
     }
 
     protected virtual void Start() // ++
     {
-        
-        //Player = GameObject.FindObjectOfType<Player>().transform;
-        //InvokeRepeating(nameof(UpdatePlayer), 0, 1);
+        InvokeRepeating(nameof(UpdatePlayer), 0, 1);
         GameManager.Instance.OnPlayerRespawned += UpdatePlayer;
     }
 
     protected void OnDisable()
     {
-        GameManager.Instance.OnPlayerRespawned += UpdatePlayer;
+        GameManager.Instance.OnPlayerRespawned -= UpdatePlayer;
     }
 
     private void UpdatePlayer() // ++
     {
-        if (!Player)
+        /*if (!Player)
         {
             Player = GameManager.Instance.Player.transform;
-        }
+        }*/
     }
 
     protected virtual void FixedUpdate()
     {
         IdleTimer -= Time.fixedDeltaTime;
-        
         if(IsDead) HandleDeathRotation(); 
     }
 
     public virtual void Die() 
     {
-        Col.enabled = false; // ++
+        foreach (var c in Col)
+        {
+            c.enabled = false;
+        }
+        
         damageTrigger.SetActive(false); 
-        Anim.SetTrigger("hit"); 
+        Anim.SetTrigger(Hit); 
         Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, deathImpactSpeed); 
         
         IsDead = true; 
@@ -100,10 +102,15 @@ public class Enemy : MonoBehaviour
         IsGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
         IsGroundInFrontDetected = Physics2D.Raycast
             (groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
-        IsWallDetected = Physics2D.Raycast
-            (transform.position, Vector2.right * facingDirection, wallCheckDistance, whatIsGround); // проверка на стену
+        WallDetected();
     }
-    
+
+    protected virtual void WallDetected()
+    {
+        IsWallDetected = Physics2D.Raycast
+            (transform.position, Vector2.right * FacingDirection, wallCheckDistance, whatIsGround); // проверка на стену
+    }
+
     protected virtual void HandleFlip(float xValue) // метод переворачивания 
     {
         // тут нам нужно поменять условие, вместо if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
@@ -118,7 +125,7 @@ public class Enemy : MonoBehaviour
     }
     protected virtual void Flip() 
     {
-        facingDirection *= -1;
+        FacingDirection *= -1;
         transform.Rotate(0f, 180f, 0f);
         IsFacingRight = !IsFacingRight;
     }
@@ -130,6 +137,6 @@ public class Enemy : MonoBehaviour
         Gizmos.DrawLine
             (groundCheck.position, new Vector2(groundCheck.position.x, groundCheck.position.y - groundCheckDistance)); // луч на пол
         Gizmos.DrawLine
-            (groundCheck.position, new Vector2(transform.position.x + (wallCheckDistance * facingDirection), transform.position.y)); // луч на стену
+            (groundCheck.position, new Vector2(transform.position.x + (wallCheckDistance * FacingDirection), transform.position.y)); // луч на стену
     }
 }

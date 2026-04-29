@@ -60,7 +60,7 @@ public class Chicken : Enemy
         
         if (IsGroundInFrontDetected)
         {
-            Rb.linearVelocity = new Vector2(movementSpeed * facingDirection, Rb.linearVelocity.y);
+            Rb.linearVelocity = new Vector2(movementSpeed * FacingDirection, Rb.linearVelocity.y);
         }
     }
 
@@ -89,12 +89,12 @@ public class Chicken : Enemy
         
         _playerDetection = 
             Physics2D.Raycast(
-                transform.position, transform.right * facingDirection, detectionRange, whatIsPlayer);
+                transform.position, transform.right * FacingDirection, detectionRange, whatIsPlayer);
     }
     protected override void OnDrawGizmos()
     {
         Gizmos.DrawLine(
             transform.position, 
-            new Vector2(transform.position.x + (detectionRange * facingDirection), transform.position.y));
+            new Vector2(transform.position.x + (detectionRange * FacingDirection), transform.position.y));
     }
 }

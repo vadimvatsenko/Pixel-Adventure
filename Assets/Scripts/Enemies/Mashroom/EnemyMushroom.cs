@@ -50,7 +50,7 @@ public class EnemyMushroom : Enemy
 
         if (IsGroundInFrontDetected)
         {
-            Rb.linearVelocity = new Vector2(movementSpeed * facingDirection, Rb.linearVelocity.y);
+            Rb.linearVelocity = new Vector2(movementSpeed * FacingDirection, Rb.linearVelocity.y);
         }
     }
 }

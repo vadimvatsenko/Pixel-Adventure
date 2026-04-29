@@ -1,6 +1,7 @@
 using UnityEngine;
 public class CheckPoint : MonoBehaviour
 {
+    private static readonly int Activate = Animator.StringToHash("activate");
     private Animator _animator;
     private bool _active;
 
@@ -27,7 +28,7 @@ public class CheckPoint : MonoBehaviour
     private void ActivateCheckPoint()
     {
         _active = true;
-        _animator.SetTrigger("activate");
+        _animator.SetTrigger(Activate);
         GameManager.Instance.UpdateRespawnPosition(transform);
     }
 }
