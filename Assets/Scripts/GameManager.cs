@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
 
     private void Start() 
     {
+        Player = playerPrefab.GetComponent<Player>();
         CollectFruitsInfo();
     }
 

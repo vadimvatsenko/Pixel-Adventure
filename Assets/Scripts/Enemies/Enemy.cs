@@ -5,17 +5,18 @@ using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
+    private static readonly int XVelocity = Animator.StringToHash("xVelocity");
     private static readonly int Hit = Animator.StringToHash("hit");
     protected Animator Anim;
     protected Rigidbody2D Rb;
-    [SerializeField] protected Collider2D[] Col; // ++
-    [CanBeNull] protected Transform Player; // ++
+    [SerializeField] protected Collider2D[] Col; 
+    [CanBeNull] protected Transform Player; 
     
     [SerializeField] protected GameObject damageTrigger; 
     
     [Header("General Info")]
     [SerializeField] protected float movementSpeed = 2f;
-    protected bool CanMove = true; // ++
+    protected bool CanMove = true;
     [SerializeField] protected float idleDuration = 1.5f; 
     protected float IdleTimer;
 
@@ -27,11 +28,16 @@ public class Enemy : MonoBehaviour
         
     [Header("Basic collision")] 
     [SerializeField] protected float groundCheckDistance = 1.1f;
-    [SerializeField] protected float wallCheckDistance = 0.7f;
     [SerializeField] protected LayerMask whatIsGround;
     [SerializeField] protected Transform groundCheck;
     [SerializeField] protected LayerMask whatIsPlayer; // ++
     
+    [Header("Wall Detection")]
+    [SerializeField] protected float detectionRange;
+    [SerializeField] private float radiusWallDetection;
+    [SerializeField] private Transform wallDetectionTransform;
+    
+    protected bool IsPlayerDetection;
     protected bool IsGrounded;
     protected bool IsWallDetected;
     protected bool IsGroundInFrontDetected;
@@ -59,16 +65,22 @@ public class Enemy : MonoBehaviour
 
     private void UpdatePlayer() // ++
     {
-        /*if (!Player)
+        if (!Player)
         {
             Player = GameManager.Instance.Player.transform;
-        }*/
+        }
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual void Update()
     {
         IdleTimer -= Time.fixedDeltaTime;
-        if(IsDead) HandleDeathRotation(); 
+        if(IsDead) HandleDeathRotation();
+        HandleAnimator();
+    }
+
+    protected virtual void HandleAnimator()
+    {
+        Anim.SetFloat(XVelocity, Rb.linearVelocity.x);
     }
 
     public virtual void Die() 
@@ -94,7 +106,7 @@ public class Enemy : MonoBehaviour
 
     private void HandleDeathRotation() 
     {
-        transform.Rotate(0,0,(_deathRotationDirection * deathRotationSpeed) * Time.fixedDeltaTime); 
+        transform.Rotate(0,0,(_deathRotationDirection * deathRotationSpeed) * Time.deltaTime); 
     }
 
     protected virtual void HandleCollisions()
@@ -102,22 +114,21 @@ public class Enemy : MonoBehaviour
         IsGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
         IsGroundInFrontDetected = Physics2D.Raycast
             (groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
+        
+        IsPlayerDetection = 
+            Physics2D.Raycast(
+                transform.position, Vector2.right * FacingDirection, detectionRange, whatIsPlayer);
+        
         WallDetected();
     }
 
     protected virtual void WallDetected()
     {
-        IsWallDetected = Physics2D.Raycast
-            (transform.position, Vector2.right * FacingDirection, wallCheckDistance, whatIsGround); // проверка на стену
+        IsWallDetected = Physics2D.OverlapCircle(wallDetectionTransform.position, radiusWallDetection, whatIsGround);
     }
 
     protected virtual void HandleFlip(float xValue) // метод переворачивания 
     {
-        // тут нам нужно поменять условие, вместо if (_rb.linearVelocity.x < 0 && _isFacingRight || _rb.linearVelocity.x > 0 && !_isFacingRight)
-        // на (_xInput < 0 && _isFacingRight || _xInput > 0 && !_isFacingRight) - это для убирание бега при столкновении
-        // со стеной, что бы мы могли повернутся и идти в другую сторону
-        
-        //if (xValue < 0 && IsFacingRight || xValue > 0 && !IsFacingRight) // --
         if (xValue < transform.position.x && IsFacingRight || xValue > transform.position.x && !IsFacingRight) // ++
         {
             Flip();
@@ -136,7 +147,15 @@ public class Enemy : MonoBehaviour
             (transform.position, new Vector2(groundCheck.position.x, transform.position.y - groundCheckDistance)); // луч на пол
         Gizmos.DrawLine
             (groundCheck.position, new Vector2(groundCheck.position.x, groundCheck.position.y - groundCheckDistance)); // луч на пол
-        Gizmos.DrawLine
-            (groundCheck.position, new Vector2(transform.position.x + (wallCheckDistance * FacingDirection), transform.position.y)); // луч на стену
+        
+        Gizmos.DrawLine(
+            transform.position, 
+            new Vector2(transform.position.x + (detectionRange * FacingDirection), transform.position.y));
+        
+        if (wallDetectionTransform != null)
+        {
+            Gizmos.color = IsWallDetected ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(wallDetectionTransform.position, radiusWallDetection);
+        }
     }
 }

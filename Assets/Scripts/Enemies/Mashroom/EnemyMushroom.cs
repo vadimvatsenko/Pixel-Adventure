@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyMushroom : Enemy
 {
-    // private BoxCollider2D boxCollider; // --
+    private static readonly int XVelocity = Animator.StringToHash("xVelocity");
     
     protected override void Awake()
     {
@@ -10,11 +10,11 @@ public class EnemyMushroom : Enemy
         // boxCollider = GetComponent<BoxCollider2D>(); // --
     }
 
-    protected override void FixedUpdate()
+    protected override void Update()
     {
-        base.FixedUpdate();
+        base.Update();
         
-        Anim.SetFloat("xVelocity", Rb.linearVelocity.x);
+        Anim.SetFloat(XVelocity, Rb.linearVelocity.x);
         
         if(IsDead) return; 
         

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    private static readonly int IsKnocked = Animator.StringToHash("isKnocked");
     private Rigidbody2D _rb;
     private Animator _animator;
     private CapsuleCollider2D _collider; // нам нужно будет отключать коллайдер
@@ -102,18 +103,18 @@ public class Player : MonoBehaviour
         HandleAnimations();
     }
 
-    private void HandleEnemyDetection() // ++
+    private void HandleEnemyDetection() 
     {
-        if (_rb.linearVelocity.y >= 0) return; // ++
+        if (_rb.linearVelocity.y >= 0) return;
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(enemyCheck.position, enemyCheckRadius, whatIsEnemy); // ++
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(enemyCheck.position, enemyCheckRadius, whatIsEnemy);
 
         foreach (var enemy in colliders) // ++
         {
             Enemy newEnemy = enemy.GetComponent<Enemy>();
             if (newEnemy != null)
             {
-                //newEnemy.Die();
+                newEnemy.Die();
                 Jump();
             }
         }
@@ -182,11 +183,11 @@ public class Player : MonoBehaviour
     private IEnumerator KnockbackRoutine() 
     {
         _isKnocked = true;
-        _animator.SetBool("isKnocked", _isKnocked);
+        _animator.SetBool(IsKnocked, _isKnocked);
         yield return new WaitForSeconds(knockbackDuration);
         
         _isKnocked = false;
-        _animator.SetBool("isKnocked", _isKnocked); 
+        _animator.SetBool(IsKnocked, _isKnocked); 
     }
 
     #endregion
@@ -315,7 +316,6 @@ public class Player : MonoBehaviour
     
     private void HandleWallSlide() // метод скольжения
     {
-        
         bool canWallSlide = _isWallDetected && _rb.linearVelocity.y < 0; // локальная переменная, можно ли скользить
         float yModifer = _yInput < 0? 1f : 0.05f; // модификатор скорости скольжения, если нажата кнопка вниз, то скорость модификатора 1
         
