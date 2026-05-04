@@ -7,9 +7,11 @@ public class Enemy : MonoBehaviour
 {
     private static readonly int XVelocity = Animator.StringToHash("xVelocity");
     private static readonly int Hit = Animator.StringToHash("hit");
+    
+    private SpriteRenderer _sr => GetComponent<SpriteRenderer>();
     protected Animator Anim;
     protected Rigidbody2D Rb;
-    [SerializeField] protected Collider2D[] Col; 
+    protected Collider2D[] Col; 
     [CanBeNull] protected Transform Player; 
     
     [SerializeField] protected GameObject damageTrigger; 
@@ -56,6 +58,12 @@ public class Enemy : MonoBehaviour
     {
         InvokeRepeating(nameof(UpdatePlayer), 0, 1);
         GameManager.Instance.OnPlayerRespawned += UpdatePlayer;
+
+        if (_sr.flipX && !IsFacingRight)
+        {
+            _sr.flipX = false;
+            Flip();
+        }
     }
 
     protected void OnDisable()
@@ -140,6 +148,12 @@ public class Enemy : MonoBehaviour
         FacingDirection *= -1;
         transform.Rotate(0f, 180f, 0f);
         IsFacingRight = !IsFacingRight;
+    }
+
+    [ContextMenu("Change Facing Direction")]
+    public void FlipDefaultFacingDirection()
+    {
+        _sr.flipX = !_sr.flipX;
     }
     
     protected virtual void OnDrawGizmos() // ++ был private
