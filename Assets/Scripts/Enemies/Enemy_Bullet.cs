@@ -12,7 +12,7 @@ public class Enemy_Bullet : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
     }
     
-    public void SetVelocity(Vector2 velocity) => _rb.velocity = velocity;
+    public void SetVelocity(Vector2 velocity) => _rb.linearVelocity = velocity;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
