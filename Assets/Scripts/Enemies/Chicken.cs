@@ -26,7 +26,6 @@ public class Chicken : Enemy
         if(_aggroTimer <= 0) CanMove = false;
         
         HandleMovement();
-        HandleCollisions();
         
         if (!IsGroundInFrontDetected)
         {

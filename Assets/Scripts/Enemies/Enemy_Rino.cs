@@ -22,8 +22,6 @@ public class Enemy_Rino : Enemy
     protected override void Update()
     {
         base.Update();
-        
-        HandleCollisions();
         HandleCharge();
     }
     
@@ -31,13 +29,8 @@ public class Enemy_Rino : Enemy
     {
         if(!CanMove) return;
 
-        movementSpeed = movementSpeed + (Time.deltaTime * speedUpRate); // ускорение
+        HandleSpeedUp();
 
-        if (movementSpeed > maxSpeed)
-        {
-            maxSpeed = movementSpeed;
-        }
-        
         if (IsPlayerDetection)
         {
             Rb.linearVelocity = new Vector2(movementSpeed * FacingDirection, Rb.linearVelocity.y);
@@ -53,25 +46,37 @@ public class Enemy_Rino : Enemy
             WallHit();
         }
     }
-    
+
+    private void HandleSpeedUp()
+    {
+        movementSpeed = movementSpeed + (Time.deltaTime * speedUpRate); // ускорение
+
+        if (movementSpeed > maxSpeed)
+        {
+            maxSpeed = movementSpeed;
+        }
+    }
+
     private void TurnAround()
     {
-        movementSpeed = _defaulSpeed;
+        SpeedReset();
         CanMove = false;
         Rb.linearVelocity = Vector2.zero;
         Flip();
         movementSpeed = _defaulSpeed;
     }
 
+    private void SpeedReset() => movementSpeed = _defaulSpeed;
+    
     private void WallHit()
     {
         CanMove = false;
-        movementSpeed = _defaulSpeed;
+        SpeedReset();
         Anim.SetBool(HitWall, true);
         Rb.linearVelocity = new Vector2(impactPower.x * -FacingDirection, Rb.linearVelocity.y);
         
         Flip();
-        movementSpeed = _defaulSpeed;
+        SpeedReset();
     }
 
     // вызывается по окончании анимации удара головой об стену

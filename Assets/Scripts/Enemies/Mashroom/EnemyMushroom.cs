@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyMushroom : Enemy
 {
-    private static readonly int XVelocity = Animator.StringToHash("xVelocity");
     
     protected override void Awake()
     {
@@ -14,26 +13,16 @@ public class EnemyMushroom : Enemy
     {
         base.Update();
         
-        Anim.SetFloat(XVelocity, Rb.linearVelocity.x);
-        
         if(IsDead) return; 
         
         HandleMovement();
-        HandleCollisions();
-
+        
         if (IsGrounded)
         {
             HandleTurnAround();
         }
     }
-
-    /*public override void Die() // --
-    {
-        base.Die();
-        boxCollider.enabled = false;
-        
-    }*/
-
+    
     private void HandleTurnAround()
     {
         if (!IsGroundInFrontDetected || IsWallDetected)

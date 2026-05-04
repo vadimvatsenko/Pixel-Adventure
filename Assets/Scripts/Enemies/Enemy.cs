@@ -76,6 +76,7 @@ public class Enemy : MonoBehaviour
         IdleTimer -= Time.fixedDeltaTime;
         if(IsDead) HandleDeathRotation();
         HandleAnimator();
+        HandleCollisions();
     }
 
     protected virtual void HandleAnimator()
