@@ -9,7 +9,7 @@ public class Enemy_Trunk : Enemy
     [SerializeField] private float bulletSpeed = 7f;
     [SerializeField]  private Transform gunPoint;
     [SerializeField] private float attackCooldDown = 1.5f;
-    [SerializeField] private float lastTimeAttacked;
+    private float _lastTimeAttacked;
     
     protected override void Update()
     {
@@ -17,7 +17,7 @@ public class Enemy_Trunk : Enemy
         
         if(IsDead) return; 
         
-        bool canAttack = Time.time > lastTimeAttacked + attackCooldDown;
+        bool canAttack = Time.time > _lastTimeAttacked + attackCooldDown;
 
         if (IsPlayerDetection && canAttack)
         {
@@ -54,21 +54,21 @@ public class Enemy_Trunk : Enemy
     
     private void Attack()
     {
-        IdleTimer = idleDuration;
+        IdleTimer = idleDuration + attackCooldDown;
         
-        lastTimeAttacked = Time.time;
+        _lastTimeAttacked = Time.time;
+        
+        Rb.linearVelocity = Vector2.zero;
         Anim.SetTrigger(Attack1);
     }
-
-    protected override void HandleAnimator()
-    {
-        // пустой, чтобы не вызывался xVelocity. Его нету на Plant
-    }
-
+    
     private void CreateBullet()
     {
         Enemy_Bullet bullet = Instantiate(bulletPrefab, gunPoint.position, Quaternion.identity).GetComponent<Enemy_Bullet>();
         Vector2 bulletVelocity = new Vector2(bulletSpeed * FacingDirection, 0);
+        
+        if(FacingDirection == 1) bullet.FlipSprite();
+        
         bullet.SetVelocity(bulletVelocity);
           
         Destroy(bullet.gameObject, 10f);

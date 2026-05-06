@@ -33,9 +33,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected LayerMask whatIsGround;
     [SerializeField] protected Transform groundCheck;
     [SerializeField] protected LayerMask whatIsPlayer; // ++
+    [SerializeField] protected float detectionRange;
     
     [Header("Wall Detection")]
-    [SerializeField] protected float detectionRange;
     [SerializeField] private float radiusWallDetection;
     [SerializeField] private Transform wallDetectionTransform;
     
