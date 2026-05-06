@@ -3,9 +3,12 @@ using UnityEngine;
 public class Enemy_Snail : Enemy
 {
     private static readonly int Hit1 = Animator.StringToHash("hit");
-    
+    private static readonly int Hit3 = Animator.StringToHash("hit_3");
+
     [Header("Snail Details")]
     [SerializeField] private Enemy_SnailBody bodyPrefab;
+
+    [SerializeField] private float maxSpeed = 10f;
     
     private bool _hasBody = true;
     protected override void Update()
@@ -24,7 +27,9 @@ public class Enemy_Snail : Enemy
     
     private void HandleTurnAround()
     {
-        if (!IsGroundInFrontDetected || IsWallDetected)
+        bool canFlipFromLendge = !IsGroundInFrontDetected && _hasBody;
+        
+        if ( canFlipFromLendge || IsWallDetected)
         {
             Flip();
             IdleTimer = idleDuration;
@@ -42,6 +47,12 @@ public class Enemy_Snail : Enemy
             
             CanMove = false;
             _hasBody = false;
+        }
+        else if (!CanMove && !_hasBody)
+        {
+            Anim.SetTrigger(Hit1);
+            CanMove = true;
+            movementSpeed = maxSpeed;
         }
         else
         {
@@ -67,10 +78,20 @@ public class Enemy_Snail : Enemy
         
         if (Random.Range(0f, 100f) < 50) 
         {
-            DeathRotationDirection = DeathRotationDirection * -1; 
+            DeathRotationDirection *= -1; 
         }
         
-        newBody.SetupBody(deathImpactSpeed, deathRotationSpeed * DeathRotationDirection);
+        newBody.SetupBody(deathImpactSpeed, deathRotationSpeed * DeathRotationDirection, FacingDirection);
         Destroy(newBody.gameObject, 10f);
+    }
+
+    protected override void Flip()
+    {
+        base.Flip();
+
+        if (!_hasBody)
+        {
+            Anim.SetTrigger(Hit3);
+        }
     }
 }
