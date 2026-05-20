@@ -8,6 +8,8 @@ public class UI_MainMenu : MonoBehaviour
     [SerializeField] private Button newGameButton;
     [SerializeField] private UI_FadeEffect fadeEffect;
     
+    [SerializeField] private GameObject[] uiElements;
+    
     private void Start()
     {
         fadeEffect.ScreenFadeIn(0f, 1.5f);
@@ -21,6 +23,15 @@ public class UI_MainMenu : MonoBehaviour
     private void OnDisable()
     {
         newGameButton.onClick.RemoveAllListeners();
+    }
+
+    public void SwitchUI(GameObject uiToEnable)
+    {
+        foreach (var go in uiElements)
+        {
+            go.SetActive(false);
+        }
+        uiToEnable.SetActive(true);
     }
     
     public void NewGame()
