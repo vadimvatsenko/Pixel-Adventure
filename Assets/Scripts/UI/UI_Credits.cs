@@ -6,9 +6,15 @@ public class UI_Credits : MonoBehaviour
     [SerializeField] private RectTransform rectT;
     [SerializeField] private float speed = 200f;
     [SerializeField] private string mainMenuSceneName = "MainMenu";
-    [SerializeField] private float offScreenPosition = 1500f; 
+    [SerializeField] private float offScreenPosition = 1500f;
+    [SerializeField] private UI_FadeEffect fadeEffect;
     
     private bool isCreditsSkiped = false;
+
+    private void Awake()
+    {
+        fadeEffect.ScreenFadeIn(0,1.5f);
+    }
 
     private void Update()
     {
@@ -32,6 +38,8 @@ public class UI_Credits : MonoBehaviour
             GoToMainMenu();
         }
     }
+    
+    private void GoToMainMenu() => fadeEffect.ScreenFadeIn(1,1, GoToMainMenuScene);
 
-    private void GoToMainMenu() => SceneManager.LoadScene(mainMenuSceneName);
+    private void GoToMainMenuScene() => SceneManager.LoadScene(mainMenuSceneName);
 }

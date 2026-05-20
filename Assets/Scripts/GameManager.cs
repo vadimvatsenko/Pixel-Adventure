@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
     [Header("Game Objects")] 
     
     [SerializeField] private GameObject playerPrefab;
@@ -89,5 +88,10 @@ public class GameManager : MonoBehaviour
     public void AddFruit() => _fruitsCollected++;
     public bool FruitsHaveRandomLook() => fruitsHaveRandomLook;
     
-    public void LoadTheEndScene() => SceneManager.LoadScene("TheEnd");
+    private void LoadTheEndScene() => SceneManager.LoadScene("TheEnd");
+    
+    public void LevelFinished()
+    {
+        UI_InGame.Instance.fadeEffect.ScreenFadeIn(1,1.5f, LoadTheEndScene);
+    }
 }
