@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -86,4 +88,6 @@ public class GameManager : MonoBehaviour
     }
     public void AddFruit() => _fruitsCollected++;
     public bool FruitsHaveRandomLook() => fruitsHaveRandomLook;
+    
+    public void LoadTheEndScene() => SceneManager.LoadScene("TheEnd");
 }
