@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UI_Menu : MonoBehaviour
+public class UI_MainMenu : MonoBehaviour
 {
     [SerializeField] private string sceneName;
     [SerializeField] private Button newGameButton;
