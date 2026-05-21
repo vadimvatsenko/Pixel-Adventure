@@ -50,6 +50,7 @@ public class Player : MonoBehaviour
 
     [Header("Player Visuals")] // добаляем ссылку на префаб
     [SerializeField] private AnimatorOverrideController[] animators;
+    [SerializeField] private int skinId;
     [SerializeField] private GameObject deathFX;
     
     private bool _isGrounded; // на земле ли мы
@@ -74,8 +75,7 @@ public class Player : MonoBehaviour
     {
         _defaultGravityScale = _rb.gravityScale;
         RespawnFinished(false);
-        
-        _animator.runtimeAnimatorController = animators[0];
+        UpdateSkin();
     }
     
     private void Update()
@@ -104,6 +104,15 @@ public class Player : MonoBehaviour
         HandleFlip(); // метод переворачивания персонажа
         HandleCollisions();
         HandleAnimations();
+    }
+
+    public void UpdateSkin()
+    {
+        SkinManager skinManager = SkinManager.instance;
+        
+        if(skinManager == null) return;
+        
+        _animator.runtimeAnimatorController = animators[skinManager.choosenSkinId];
     }
 
     private void HandleEnemyDetection() 
