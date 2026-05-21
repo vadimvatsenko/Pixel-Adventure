@@ -46,9 +46,10 @@ public class Player : MonoBehaviour
     [Space] 
     [SerializeField] private Transform enemyCheck; 
     [SerializeField] private float enemyCheckRadius; 
-    [SerializeField] private LayerMask whatIsEnemy; 
-    
-    [Header("VFX")] // добаляем ссылку на префаб
+    [SerializeField] private LayerMask whatIsEnemy;
+
+    [Header("Player Visuals")] // добаляем ссылку на префаб
+    [SerializeField] private AnimatorOverrideController[] animators;
     [SerializeField] private GameObject deathFX;
     
     private bool _isGrounded; // на земле ли мы
@@ -73,6 +74,8 @@ public class Player : MonoBehaviour
     {
         _defaultGravityScale = _rb.gravityScale;
         RespawnFinished(false);
+        
+        _animator.runtimeAnimatorController = animators[0];
     }
     
     private void Update()
