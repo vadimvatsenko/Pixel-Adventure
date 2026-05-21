@@ -19,10 +19,10 @@ public class Enemy_Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Player player = collision.gameObject.GetComponent<Player>();
+        Player.Player player = collision.gameObject.GetComponent<Player.Player>();
         if (player != null)
         {
-            collision.gameObject.GetComponent<Player>().Knockback(transform.position.x);
+            collision.gameObject.GetComponent<Player.Player>().Knockback(transform.position.x);
             Destroy(this.gameObject);
         }
         

@@ -10,7 +10,7 @@ public class StartPoint : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        Player player = collision.GetComponent<Player>();
+        Player.Player player = collision.GetComponent<Player.Player>();
         if (player) _animator.SetTrigger("activate");
     }
 }

@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private float respawnDelay; 
-    public Player Player { get; private set; }
+    public Player.Player Player { get; private set; }
     
     [Header("Fruits Management")] 
     [SerializeField] private bool fruitsHaveRandomLook;
@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     private void Start() 
     {
-        Player = playerPrefab.GetComponent<Player>();
+        Player = playerPrefab.GetComponent<Player.Player>();
         CollectFruitsInfo();
     }
 
@@ -83,7 +83,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(respawnDelay);
         
         GameObject newPlayer = Instantiate(playerPrefab, respawnPoint.position, Quaternion.identity);
-        Player = newPlayer.GetComponent<Player>();
+        Player = newPlayer.GetComponent<Player.Player>();
     }
     public void AddFruit() => _fruitsCollected++;
     public bool FruitsHaveRandomLook() => fruitsHaveRandomLook;

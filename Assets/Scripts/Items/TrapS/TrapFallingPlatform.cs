@@ -92,7 +92,7 @@ public class TrapFallingPlatform : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(_impactHappend) return;
-        Player player = other.GetComponent<Player>();
+        Player.Player player = other.GetComponent<Player.Player>();
         if (player)
         {
             Invoke(nameof(SwitchOffPlatform), fallDelay); // вызывает метод с задержкой
