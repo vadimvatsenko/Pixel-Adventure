@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyMushroom : Enemy
 {
-    // private BoxCollider2D boxCollider; // --
     
     protected override void Awake()
     {
@@ -10,30 +9,20 @@ public class EnemyMushroom : Enemy
         // boxCollider = GetComponent<BoxCollider2D>(); // --
     }
 
-    protected override void FixedUpdate()
+    protected override void Update()
     {
-        base.FixedUpdate();
-        
-        Anim.SetFloat("xVelocity", Rb.linearVelocity.x);
+        base.Update();
         
         if(IsDead) return; 
         
         HandleMovement();
-        HandleCollisions();
-
+        
         if (IsGrounded)
         {
             HandleTurnAround();
         }
     }
-
-    /*public override void Die() // --
-    {
-        base.Die();
-        boxCollider.enabled = false;
-        
-    }*/
-
+    
     private void HandleTurnAround()
     {
         if (!IsGroundInFrontDetected || IsWallDetected)
@@ -50,7 +39,7 @@ public class EnemyMushroom : Enemy
 
         if (IsGroundInFrontDetected)
         {
-            Rb.linearVelocity = new Vector2(movementSpeed * facingDirection, Rb.linearVelocity.y);
+            Rb.linearVelocity = new Vector2(movementSpeed * FacingDirection, Rb.linearVelocity.y);
         }
     }
 }

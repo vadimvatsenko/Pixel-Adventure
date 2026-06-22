@@ -4,6 +4,8 @@ using Random = UnityEngine.Random;
 
 public class TrapFallingPlatform : MonoBehaviour
 {
+    private static readonly int Deactivate = Animator.StringToHash("deactivate");
+    
     private Rigidbody2D _rb;
     private Animator _animator;
     private BoxCollider2D[] _colliders;
@@ -90,7 +92,7 @@ public class TrapFallingPlatform : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(_impactHappend) return;
-        Player player = other.GetComponent<Player>();
+        Player.Player player = other.GetComponent<Player.Player>();
         if (player)
         {
             Invoke(nameof(SwitchOffPlatform), fallDelay); // вызывает метод с задержкой
@@ -101,7 +103,7 @@ public class TrapFallingPlatform : MonoBehaviour
 
     private void SwitchOffPlatform()
     {
-        _animator.SetTrigger("deactivate");
+        _animator.SetTrigger(Deactivate);
 
         canMove = false;
         _rb.isKinematic = false;

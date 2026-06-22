@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PlayerAnimationEvents : MonoBehaviour
 {
-    private Player _player;
+    private Player.Player _player;
 
     private void Awake()
     {
-        _player = GetComponentInParent<Player>();
+        _player = GetComponentInParent<Player.Player>();
     }
     public void FinishRespawn() => _player.RespawnFinished(true);
 }

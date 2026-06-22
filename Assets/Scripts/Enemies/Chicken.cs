@@ -4,17 +4,15 @@ public class Chicken : Enemy
 {
     [Header("Chicken details")] 
     [SerializeField] private float aggroDuration; // продолжительность агрессии 
-    [SerializeField] private float detectionRange; // расстояние до игрока
     
     private float _aggroTimer; // таймер агресивности
     private bool _playerDetection; // обнаружен ли игрок
     private bool _canFlip = true; // можно ли развернутся
     
-    protected override void FixedUpdate()
+    protected override void Update()
     {
-        base.FixedUpdate();
+        base.Update();
         
-        Anim.SetFloat("xVelocity", Rb.linearVelocity.x);
         _aggroTimer -= Time.fixedDeltaTime;
         
         if(IsDead) return;
@@ -28,9 +26,8 @@ public class Chicken : Enemy
         if(_aggroTimer <= 0) CanMove = false;
         
         HandleMovement();
-        HandleCollisions();
-
-        if (IsGrounded)
+        
+        if (!IsGroundInFrontDetected)
         {
             HandleTurnAround();
         }
@@ -49,9 +46,9 @@ public class Chicken : Enemy
     private void HandleMovement()
     {
         if(!CanMove) return;
-
-        //if(Player) HandleFlip(Player.position.x);
-
+        
+        if(IsWallDetected) Flip();
+        
         if (Player)
         {
             float xValue = Player.transform.position.x;
@@ -60,7 +57,7 @@ public class Chicken : Enemy
         
         if (IsGroundInFrontDetected)
         {
-            Rb.linearVelocity = new Vector2(movementSpeed * facingDirection, Rb.linearVelocity.y);
+            Rb.linearVelocity = new Vector2(movementSpeed * FacingDirection, Rb.linearVelocity.y);
         }
     }
 
@@ -80,7 +77,7 @@ public class Chicken : Enemy
     protected override void Flip()
     {
         base.Flip();
-        _canFlip = true;
+        _canFlip = false;
     }
 
     protected override void HandleCollisions()
@@ -89,12 +86,10 @@ public class Chicken : Enemy
         
         _playerDetection = 
             Physics2D.Raycast(
-                transform.position, transform.right * facingDirection, detectionRange, whatIsPlayer);
+                transform.position, Vector2.right * FacingDirection, detectionRange, whatIsPlayer);
     }
     protected override void OnDrawGizmos()
     {
-        Gizmos.DrawLine(
-            transform.position, 
-            new Vector2(transform.position.x + (detectionRange * facingDirection), transform.position.y));
+        base.OnDrawGizmos();
     }
 }
