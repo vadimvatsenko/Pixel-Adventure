@@ -8,6 +8,10 @@ Embark on an exciting journey through vibrant pixelated worlds, solving puzzles,
 
 ## 🎮 Game Overview
 
+<p align="center">
+  <img src="IMG/PixelAdventures.gif" alt="Pixel Adventures" width="90%" />
+</p>
+
 **Pixel Adventure** is a platformer where players take on the role of a brave adventurer navigating through beautifully crafted pixel environments. The game focuses on exploration, puzzle-solving, and overcoming challenges using a variety of abilities and tools.
 
 ### Key Features:
