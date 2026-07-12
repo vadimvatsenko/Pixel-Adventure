@@ -415,6 +415,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 730494372845345886, guid: c5e6b5980edf6954f92020ff0a9df6de, type: 3}
+      propertyPath: pushForce
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 1293838722060536328, guid: c5e6b5980edf6954f92020ff0a9df6de, type: 3}
       propertyPath: m_ConnectedAnchor.y
       value: 0.9999999
